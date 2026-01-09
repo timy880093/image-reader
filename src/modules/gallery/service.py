@@ -11,17 +11,20 @@ from core.utils import parsePath, formatPathForUrl
 class GalleryService(BaseReader):
     """Gallery 服務類別，繼承自 BaseReader"""
     
-    def has_marker_file(self, work_path, marker_name='.gallery神'):
+    def has_marker_file(self, work_path, marker_name=None):
         """
         檢查作品資料夾內是否含有指定的標記檔案
         
         Args:
             work_path: 作品目錄路徑
-            marker_name: 標記檔案名稱（預設 .gallery神）
+            marker_name: 標記檔案名稱（若為 None，從配置讀取）
             
         Returns:
             bool: 是否存在標記檔案
         """
+        if marker_name is None:
+            marker_name = self.config.get('gallery', {}).get('special_tag_marker', '.special')
+        
         work_path = Path(work_path)
         marker_file = work_path / marker_name
         return marker_file.exists()
@@ -32,9 +35,9 @@ class GalleryService(BaseReader):
         
         Args:
             page: 頁碼（從1開始）
-            per_page: 每頁顯示數量（Gallery 默認較少）
+            per_page: 每頁顯示數量
             skip_chapters: 是否跳過章節信息載入（加快初始載入速度）
-            filter_tag: 篩選標籤（如 'gallery神' 表示只顯示含 .gallery神 檔案的資料夾）
+            filter_tag: 篩選標籤
             search_keyword: 搜尋關鍵字（用於名稱模糊搜尋）
             
         Returns:
@@ -45,12 +48,16 @@ class GalleryService(BaseReader):
             return self._empty_result(page, per_page)
         
         try:
+            # 獲取配置
+            gallery_config = self.config.get('gallery', {})
+            special_tag_marker = gallery_config.get('special_tag_marker', '.special')
+            
             # 獲取所有作品目錄
             all_dirs = [d for d in self.root_path.iterdir() if d.is_dir()]
             
-            # 如果有篩選標籤，進行過濾
-            if filter_tag == 'gallery神':
-                all_dirs = [d for d in all_dirs if self.has_marker_file(d, '.gallery神')]
+            # 如果有篩選標籤，進行過濾（filter_tag 是標記檔案名稱）
+            if filter_tag:
+                all_dirs = [d for d in all_dirs if self.has_marker_file(d, filter_tag)]
             
             # 如果有搜尋關鍵字，先在全部資料中搜尋
             if search_keyword:

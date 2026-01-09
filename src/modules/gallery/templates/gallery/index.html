@@ -4,6 +4,13 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
+<style>
+    :root {
+        --grid-columns-desktop: {{ ui_config.get('grid_columns_desktop', 3) }};
+        --grid-columns-tablet: {{ ui_config.get('grid_columns_tablet', 2) }};
+        --grid-columns-mobile: {{ ui_config.get('grid_columns_mobile', 1) }};
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -21,7 +28,7 @@
         <input type="text" id="searchInput" class="search-input" placeholder="搜尋 Gallery 作品...">
         <div class="filter-tags">
             <button id="filterAll" class="filter-btn active" onclick="setFilter(null)">全部</button>
-            <button id="filterGod" class="filter-btn" onclick="setFilter('gallery神')">⭐ Gallery神</button>
+            <button id="filterGod" class="filter-btn" onclick="setFilter('{{ gallery_config.get('special_tag_marker', '.special') }}')">{{ gallery_config.get('special_tag_name', '⭐ 精選') }}</button>
         </div>
     </div>
     

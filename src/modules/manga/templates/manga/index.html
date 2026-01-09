@@ -4,6 +4,13 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/manga.css') }}">
+<style>
+    :root {
+        --grid-columns-desktop: {{ ui_config.get('grid_columns_desktop', 3) }};
+        --grid-columns-tablet: {{ ui_config.get('grid_columns_tablet', 2) }};
+        --grid-columns-mobile: {{ ui_config.get('grid_columns_mobile', 1) }};
+    }
+</style>
 {% endblock %}
 
 {% block content %}

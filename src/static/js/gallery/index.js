@@ -7,9 +7,9 @@ let config = {};
 let currentPage = 1;
 let totalPages = 1;
 let isLoading = false;
-let currentFilter = null;  // 當前篩選標籤
-let currentSearchKeyword = '';  // 當前搜尋關鍵字
-let searchDebounceTimer = null;  // 搜尋防抖計時器
+let currentFilter = null;
+let currentSearchKeyword = '';
+let searchDebounceTimer = null;
 
 const API_PREFIX = '/gallery/api';
 const IMAGE_PREFIX = '/gallery/image/';
@@ -189,7 +189,7 @@ function setFilter(filterTag) {
         btn.classList.remove('active');
     });
 
-    if (filterTag === 'gallery神') {
+    if (filterTag) {
         document.getElementById('filterGod').classList.add('active');
     } else {
         document.getElementById('filterAll').classList.add('active');

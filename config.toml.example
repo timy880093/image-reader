@@ -30,6 +30,10 @@ search_debounce_ms = 300        # 搜尋防抖延遲（毫秒）
 skip_chapters_on_list = true    # 列表頁面是否跳過章節載入（加快速度）
 default_filter = ""             # 預設篩選標籤（空字串表示全部）
 
+# 特殊標籤設定
+special_tag_name = "⭐ 精選"  # 特殊標籤名稱（用於篩選按鈕顯示，可包含 emoji）
+special_tag_marker = ".special"  # 特殊標籤標記檔案名稱（存在此檔案的資料夾會被標記）
+
 # 支援的圖片格式
 supported_formats = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tiff"]
 
@@ -65,10 +69,10 @@ allow_wheel_zoom = false    # 允許滾輪縮放圖片（已禁用）
 language = "zh-TW"          # 界面語言
 responsive_design = true    # 響應式設計
 
-# 主頁設定
-grid_columns_desktop = 3    # 桌面版漫畫卡片列數
-grid_columns_tablet = 2     # 平板版漫畫卡片列數
-grid_columns_mobile = 1     # 手機版漫畫卡片列數
+# 主頁設定（適用於漫畫和 Gallery）
+grid_columns_desktop = 3    # 桌面版卡片列數（寬度 >= 1025px）
+grid_columns_tablet = 2     # 平板版卡片列數（寬度 769-1024px）
+grid_columns_mobile = 1     # 手機版卡片列數（寬度 <= 768px）
 max_chapters_display = 5    # 每本漫畫最多顯示的章節數量
 
 # 搜尋設定

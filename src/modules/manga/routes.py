@@ -33,7 +33,9 @@ def init_service(service):
 @manga_bp.route('/')
 def index():
     """漫畫列表頁面"""
-    return render_template('manga/index.html', category='manga', title='漫畫閱讀器')
+    # 獲取 UI 配置
+    ui_config = manga_service.config.get('ui', {})
+    return render_template('manga/index.html', category='manga', title='漫畫閱讀器', ui_config=ui_config)
 
 
 @manga_bp.route('/api/list')

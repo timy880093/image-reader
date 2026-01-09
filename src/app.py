@@ -39,8 +39,8 @@ IMAGE_EXTENSIONS = set(config['manga'].get('supported_formats', ['.jpg', '.jpeg'
 MANGA_ROOT = Path(config['manga'].get('root_path', './test_manga'))
 Gallery_ROOT = Path(config['manga'].get('gallery_root_path', './test_gallery'))
 
-manga_service = MangaService(MANGA_ROOT, IMAGE_EXTENSIONS)
-gallery_service = GalleryService(Gallery_ROOT, IMAGE_EXTENSIONS)
+manga_service = MangaService(MANGA_ROOT, IMAGE_EXTENSIONS, config)
+gallery_service = GalleryService(Gallery_ROOT, IMAGE_EXTENSIONS, config)
 
 # 初始化各模組的服務
 init_manga_service(manga_service)

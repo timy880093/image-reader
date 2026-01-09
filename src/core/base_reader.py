@@ -12,16 +12,18 @@ from .utils import parsePath, formatPathForUrl
 class BaseReader:
     """基礎閱讀器類別"""
     
-    def __init__(self, root_path, image_extensions):
+    def __init__(self, root_path, image_extensions, config=None):
         """
         初始化閱讀器
         
         Args:
             root_path: 根目錄路徑
             image_extensions: 支援的圖片格式集合
+            config: 配置字典（可選）
         """
         self.root_path = Path(root_path)
         self.image_extensions = image_extensions
+        self.config = config or {}  # 儲存配置
         self.cache = {}  # 簡單的內存緩存
     
     def natural_sort_key(self, text):

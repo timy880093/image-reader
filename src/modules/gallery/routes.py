@@ -41,21 +41,28 @@ def init_service(service, config=None):
 @gallery_bp.route('/')
 def index():
     """Gallery 列表頁面"""
-    return render_template('gallery/index.html', category='gallery', title='Gallery作品閱讀器')
+    ui_config = gallery_service.config.get('ui', {})
+    gallery_config_frontend = gallery_service.config.get('gallery', {})
+    return render_template(
+        'gallery/index.html', 
+        category='gallery', 
+        title='Gallery作品閱讀器', 
+        ui_config=ui_config,
+        gallery_config=gallery_config_frontend
+    )
 
 
 @gallery_bp.route('/api/list')
 def get_list():
     """API：獲取 Gallery 列表"""
-    # 從配置取得預設值
     default_per_page = gallery_config.get('per_page', 6)
     default_skip_chapters = gallery_config.get('skip_chapters_on_list', True)
     
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', default_per_page, type=int)
     skip_chapters = request.args.get('skip_chapters', str(default_skip_chapters).lower()).lower() == 'true'
-    filter_tag = request.args.get('filter_tag', None)  # 篩選標籤（如 gallery神）
-    search_keyword = request.args.get('search', None)  # 搜尋關鍵字
+    filter_tag = request.args.get('filter_tag', None)
+    search_keyword = request.args.get('search', None)
     
     result = gallery_service.get_gallery_list(
         page=page, 
