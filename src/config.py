@@ -61,10 +61,10 @@ def get_default_config():
         },
         'manga': {
             'root_path': './test_manga',
-            'pixiv_root_path': './test_pixiv',
+            'gallery_root_path': './test_gallery',
             'supported_formats': ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp']
         },
-        'pixiv': {
+        'gallery': {
             'per_page': 6,
             'search_debounce_ms': 300,
             'skip_chapters_on_list': True,
@@ -105,5 +105,5 @@ def get_frontend_config(config):
         'performance': config.get('performance', {}),
         'mobile': config.get('mobile', {}),
         'features': config.get('features', {}),
-        'pixiv': config.get('pixiv', {})
+        'gallery': config.get('gallery', {})
     }

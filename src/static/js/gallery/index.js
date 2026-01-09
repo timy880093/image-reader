@@ -1,5 +1,5 @@
 /**
- * PIXIV 列表頁面 JavaScript
+ * Gallery 列表頁面 JavaScript
  */
 
 let allWorks = [];
@@ -11,9 +11,9 @@ let currentFilter = null;  // 當前篩選標籤
 let currentSearchKeyword = '';  // 當前搜尋關鍵字
 let searchDebounceTimer = null;  // 搜尋防抖計時器
 
-const API_PREFIX = '/pixiv/api';
-const IMAGE_PREFIX = '/pixiv/image/';
-const READER_PREFIX = '/pixiv/reader/';
+const API_PREFIX = '/gallery/api';
+const IMAGE_PREFIX = '/gallery/image/';
+const READER_PREFIX = '/gallery/reader/';
 
 // 頁面載入時初始化
 document.addEventListener('DOMContentLoaded', async () => {
@@ -27,14 +27,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 function applyConfig() {
     const searchInput = document.getElementById('searchInput');
     if (config.ui && config.ui.search_placeholder) {
-        searchInput.placeholder = '搜尋 PIXIV 作品...';
+        searchInput.placeholder = '搜尋 Gallery 作品...';
     }
 }
 
 // 綁定事件
 function bindEvents() {
     // 從配置取得搜尋防抖延遲時間
-    const searchDebounceMs = (config.pixiv && config.pixiv.search_debounce_ms) || 300;
+    const searchDebounceMs = (config.gallery && config.gallery.search_debounce_ms) || 300;
 
     // 搜尋事件 - 使用防抖呼叫 API 搜尋全部資料
     document.getElementById('searchInput').addEventListener('input', (e) => {
@@ -67,7 +67,7 @@ async function loadWorks(page = 1, append = false) {
 
     try {
         // 從配置取得每頁數量，預設為 6
-        const perPage = (config.pixiv && config.pixiv.per_page) || 6;
+        const perPage = (config.gallery && config.gallery.per_page) || 6;
 
         // 使用配置的每頁數量
         let url = `${API_PREFIX}/list?page=${page}&per_page=${perPage}`;
@@ -126,7 +126,7 @@ function displayWorks(works) {
             `<img src="${IMAGE_PREFIX}${encodeURIComponent(work.cover_image)}" alt="${escapeHtml(work.name)}" onerror="this.parentElement.innerHTML='<div class=&quot;work-cover-placeholder&quot;>🎨</div>'">` :
             '<div class="work-cover-placeholder">🎨</div>';
 
-        // PIXIV 只顯示圖片數量
+        // Gallery 只顯示圖片數量
         const imageCountHtml = `
             <div class="image-count-display">
                 <span class="image-count-icon">📷</span>
@@ -153,7 +153,7 @@ async function openWork(workPath) {
     const work = allWorks.find(w => w.path === workPath);
     if (!work) return;
 
-    // PIXIV 直接打開閱讀器（因為沒有章節概念）
+    // Gallery 直接打開閱讀器（因為沒有章節概念）
     window.location.href = `${READER_PREFIX}${encodeURIComponent(workPath)}`;
 }
 
@@ -189,7 +189,7 @@ function setFilter(filterTag) {
         btn.classList.remove('active');
     });
 
-    if (filterTag === 'pixiv神') {
+    if (filterTag === 'gallery神') {
         document.getElementById('filterGod').classList.add('active');
     } else {
         document.getElementById('filterAll').classList.add('active');

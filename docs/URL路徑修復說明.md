@@ -13,13 +13,13 @@
 **問題**:
 ```javascript
 // 缺少 apiPrefix 定義
-const apiEndpoint = currentCategory === 'pixiv' ? '/api/pixiv/list' : '/api/manga/list';
+const apiEndpoint = currentCategory === 'gallery' ? '/api/gallery/list' : '/api/manga/list';
 ```
 
 **修復**:
 ```javascript
-const apiPrefix = currentCategory === 'pixiv' ? '/api/pixiv' : '/api/manga';
-const apiEndpoint = currentCategory === 'pixiv' ? '/api/pixiv/list' : '/api/manga/list';
+const apiPrefix = currentCategory === 'gallery' ? '/api/gallery' : '/api/manga';
+const apiEndpoint = currentCategory === 'gallery' ? '/api/gallery/list' : '/api/manga/list';
 ```
 
 ### 錯誤 2: URL 路徑重複
@@ -48,10 +48,10 @@ let currentPage = 1;
 let totalPages = 1;
 let isLoading = false;
 const currentCategory = '{{ category }}';
-const apiPrefix = currentCategory === 'pixiv' ? '/api/pixiv' : '/api/manga';  // ✅ 新增
-const apiEndpoint = currentCategory === 'pixiv' ? '/api/pixiv/list' : '/api/manga/list';
-const imagePrefix = currentCategory === 'pixiv' ? '/pixiv/image/' : '/manga/image/';
-const readerPrefix = currentCategory === 'pixiv' ? '/pixiv/reader/' : '/manga/reader/';
+const apiPrefix = currentCategory === 'gallery' ? '/api/gallery' : '/api/manga';  // ✅ 新增
+const apiEndpoint = currentCategory === 'gallery' ? '/api/gallery/list' : '/api/manga/list';
+const imagePrefix = currentCategory === 'gallery' ? '/gallery/image/' : '/manga/image/';
+const readerPrefix = currentCategory === 'gallery' ? '/gallery/reader/' : '/manga/reader/';
 ```
 
 ### openManga 函數
@@ -91,20 +91,20 @@ async function openManga(mangaPath) {
 | 分類 | apiPrefix | 調用 | 最終 URL | 結果 |
 |------|-----------|------|----------|------|
 | manga | `/api/manga` | `${apiPrefix}/manga/detail/測試` | `/api/manga/manga/detail/測試` | ❌ 404 |
-| pixiv | `/api/pixiv` | `${apiPrefix}/pixiv/detail/測試` | `/api/pixiv/pixiv/detail/測試` | ❌ 404 |
+| gallery | `/api/gallery` | `${apiPrefix}/gallery/detail/測試` | `/api/gallery/gallery/detail/測試` | ❌ 404 |
 
 ### 修復後（正確）
 | 分類 | apiPrefix | 調用 | 最終 URL | 結果 |
 |------|-----------|------|----------|------|
 | manga | `/api/manga` | `${apiPrefix}/detail/測試` | `/api/manga/detail/測試` | ✅ 200 |
-| pixiv | `/api/pixiv` | `${apiPrefix}/detail/測試` | `/api/pixiv/detail/測試` | ✅ 200 |
+| gallery | `/api/gallery` | `${apiPrefix}/detail/測試` | `/api/gallery/detail/測試` | ✅ 200 |
 
 ## 🧪 測試驗證
 
 ### 1. 瀏覽器測試
 ```javascript
 // 在瀏覽器 Console 中執行
-console.log('apiPrefix:', apiPrefix);  // 應該顯示 '/api/manga' 或 '/api/pixiv'
+console.log('apiPrefix:', apiPrefix);  // 應該顯示 '/api/manga' 或 '/api/gallery'
 
 // 測試 API 調用
 fetch(`${apiPrefix}/detail/測試漫畫`)

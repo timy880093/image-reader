@@ -14,11 +14,11 @@ secret_key = "manga-reader-2025-change-this-in-production"  # 密鑰（生產環
 root_path = "E:/test/manga"  # Windows 絕對路徑範例
 # root_path = "/home/user/manga"  # Linux 絕對路徑範例
 
-# PIXIV 作品資料夾設定
-pixiv_root_path = "E:/test/pixiv"  # PIXIV 作品根目錄路徑
+# Gallery 作品資料夾設定
+gallery_root_path = "E:/test/gallery"  # Gallery 作品根目錄路徑
 
-[pixiv]
-# PIXIV 閱讀器設定
+[gallery]
+# Gallery 閱讀器設定
 per_page = 6                    # 每頁顯示數量
 search_debounce_ms = 300        # 搜尋防抖延遲（毫秒）
 skip_chapters_on_list = true    # 列表頁面是否跳過章節載入（加快速度）

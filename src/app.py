@@ -5,7 +5,7 @@
 支援從指定目錄讀取漫畫資料並提供 Web 介面閱讀
 
 重構版本：採用 Blueprint 模組化架構
-- 漫畫和 PIXIV 模組完全隔離
+- 漫畫和 Gallery 模組完全隔離
 - 易於擴展和維護
 """
 
@@ -19,9 +19,9 @@ from config import load_config, get_frontend_config
 from modules.manga.routes import manga_bp, init_service as init_manga_service
 from modules.manga.service import MangaService
 
-# 導入 PIXIV 模組
-from modules.pixiv.routes import pixiv_bp, init_service as init_pixiv_service
-from modules.pixiv.service import PixivService
+# 導入 Gallery 模組
+from modules.gallery.routes import gallery_bp, init_service as init_gallery_service
+from modules.gallery.service import GalleryService
 
 # 創建 Flask 應用
 app = Flask(__name__)
@@ -37,18 +37,18 @@ IMAGE_EXTENSIONS = set(config['manga'].get('supported_formats', ['.jpg', '.jpeg'
 
 # 初始化服務
 MANGA_ROOT = Path(config['manga'].get('root_path', './test_manga'))
-PIXIV_ROOT = Path(config['manga'].get('pixiv_root_path', './test_pixiv'))
+Gallery_ROOT = Path(config['manga'].get('gallery_root_path', './test_gallery'))
 
 manga_service = MangaService(MANGA_ROOT, IMAGE_EXTENSIONS)
-pixiv_service = PixivService(PIXIV_ROOT, IMAGE_EXTENSIONS)
+gallery_service = GalleryService(Gallery_ROOT, IMAGE_EXTENSIONS)
 
 # 初始化各模組的服務
 init_manga_service(manga_service)
-init_pixiv_service(pixiv_service, config.get('pixiv', {}))
+init_gallery_service(gallery_service, config.get('gallery', {}))
 
 # 註冊 Blueprint
 app.register_blueprint(manga_bp)
-app.register_blueprint(pixiv_bp)
+app.register_blueprint(gallery_bp)
 
 
 # 全局路由
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     print("🎌 本地漫畫閱讀器")
     print("=" * 50)
     print(f"📁 漫畫資料夾: {MANGA_ROOT}")
-    print(f"🎨 PIXIV 資料夾: {PIXIV_ROOT}")
+    print(f"🎨 Gallery 資料夾: {Gallery_ROOT}")
     print(f"🌐 服務器地址: http://{config['server'].get('host', '127.0.0.1')}:{config['server'].get('port', 5000)}")
     print(f"🎨 主題: {config['reader'].get('theme', 'dark')}")
     print(f"🌍 語言: {config['ui'].get('language', 'zh-TW')}")

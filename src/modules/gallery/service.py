@@ -1,6 +1,6 @@
 """
-PIXIV 服務層
-處理 PIXIV 相關的業務邏輯
+Gallery 服務層
+處理 Gallery 相關的業務邏輯
 """
 
 from pathlib import Path
@@ -8,16 +8,16 @@ from core.base_reader import BaseReader
 from core.utils import parsePath, formatPathForUrl
 
 
-class PixivService(BaseReader):
-    """PIXIV 服務類別，繼承自 BaseReader"""
+class GalleryService(BaseReader):
+    """Gallery 服務類別，繼承自 BaseReader"""
     
-    def has_marker_file(self, work_path, marker_name='.pixiv神'):
+    def has_marker_file(self, work_path, marker_name='.gallery神'):
         """
         檢查作品資料夾內是否含有指定的標記檔案
         
         Args:
             work_path: 作品目錄路徑
-            marker_name: 標記檔案名稱（預設 .pixiv神）
+            marker_name: 標記檔案名稱（預設 .gallery神）
             
         Returns:
             bool: 是否存在標記檔案
@@ -26,15 +26,15 @@ class PixivService(BaseReader):
         marker_file = work_path / marker_name
         return marker_file.exists()
     
-    def get_pixiv_list(self, page=1, per_page=6, skip_chapters=False, filter_tag=None, search_keyword=None):
+    def get_gallery_list(self, page=1, per_page=6, skip_chapters=False, filter_tag=None, search_keyword=None):
         """
-        獲取所有 PIXIV 作品列表
+        獲取所有 Gallery 作品列表
         
         Args:
             page: 頁碼（從1開始）
-            per_page: 每頁顯示數量（PIXIV 默認較少）
+            per_page: 每頁顯示數量（Gallery 默認較少）
             skip_chapters: 是否跳過章節信息載入（加快初始載入速度）
-            filter_tag: 篩選標籤（如 'pixiv神' 表示只顯示含 .pixiv神 檔案的資料夾）
+            filter_tag: 篩選標籤（如 'gallery神' 表示只顯示含 .gallery神 檔案的資料夾）
             search_keyword: 搜尋關鍵字（用於名稱模糊搜尋）
             
         Returns:
@@ -49,8 +49,8 @@ class PixivService(BaseReader):
             all_dirs = [d for d in self.root_path.iterdir() if d.is_dir()]
             
             # 如果有篩選標籤，進行過濾
-            if filter_tag == 'pixiv神':
-                all_dirs = [d for d in all_dirs if self.has_marker_file(d, '.pixiv神')]
+            if filter_tag == 'gallery神':
+                all_dirs = [d for d in all_dirs if self.has_marker_file(d, '.gallery神')]
             
             # 如果有搜尋關鍵字，先在全部資料中搜尋
             if search_keyword:
@@ -70,7 +70,7 @@ class PixivService(BaseReader):
             for work_dir in page_dirs:
                 try:
                     # 使用緩存鍵
-                    cache_key = f"pixiv_{work_dir}_{skip_chapters}"
+                    cache_key = f"gallery_{work_dir}_{skip_chapters}"
                     
                     if cache_key in self.cache:
                         work_info = self.cache[cache_key]
@@ -100,7 +100,7 @@ class PixivService(BaseReader):
                     
                     works.append(work_info)
                 except Exception as e:
-                    print(f"處理 PIXIV 作品 {work_dir.name} 時出錯: {e}")
+                    print(f"處理 Gallery 作品 {work_dir.name} 時出錯: {e}")
                     continue
             
             return {
@@ -111,13 +111,13 @@ class PixivService(BaseReader):
                 'total_pages': (total_count + per_page - 1) // per_page
             }
         except Exception as e:
-            print(f"獲取 PIXIV 列表時出錯: {e}")
+            print(f"獲取 Gallery 列表時出錯: {e}")
             return self._empty_result(page, per_page)
     
     def get_chapters(self, work_path):
         """
-        獲取 PIXIV 作品的章節列表
-        PIXIV 通常沒有章節概念，直接包含圖片
+        獲取 Gallery 作品的章節列表
+        Gallery 通常沒有章節概念，直接包含圖片
         
         Args:
             work_path: 作品目錄路徑
@@ -142,7 +142,7 @@ class PixivService(BaseReader):
                         'image_count': len(images)
                     })
         else:
-            # 沒有子資料夾，直接檢查圖片（PIXIV 典型模式）
+            # 沒有子資料夾，直接檢查圖片（Gallery 典型模式）
             images = self.get_images_in_dir(work_path)
             if images:
                 chapters.append({
@@ -174,7 +174,7 @@ class PixivService(BaseReader):
     
     def get_chapter_images_paginated(self, chapter_path, offset=0, limit=20):
         """
-        分頁獲取章節圖片（PIXIV 專用）
+        分頁獲取章節圖片（Gallery 專用）
         
         Args:
             chapter_path: 章節路徑（相對路徑）
@@ -210,7 +210,7 @@ class PixivService(BaseReader):
         work_path = full_path.parent
         work_name = work_path.name
         
-        # 對於 PIXIV，大多數情況下沒有章節（直接就是作品資料夾）
+        # 對於 Gallery，大多數情況下沒有章節（直接就是作品資料夾）
         # 快速檢查：如果父目錄就是根目錄，則沒有導航
         if work_path == self.root_path:
             result = {

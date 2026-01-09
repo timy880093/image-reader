@@ -1,14 +1,14 @@
-# PIXIV 功能優化說明
+# Gallery 功能優化說明
 
 ## 📋 需求
 
-### PIXIV 列表頁面
+### Gallery 列表頁面
 - ✅ 初始只載入 6 個資料夾
 - ✅ 滾輪捲動時才載入更多
 - ✅ 顯示圖片張數（不實際載入圖片）
 - ✅ 資料夾內無子資料夾（直接是圖片）
 
-### PIXIV 閱讀器
+### Gallery 閱讀器
 - ✅ 依序 lazy loading 全部圖片
 - ✅ 每張載入完成立即顯示
 - ✅ 自動繼續載入下一張
@@ -21,7 +21,7 @@
 #### 新增快速圖片計數方法
 ```python
 def _count_images_fast(self, manga_path):
-    """快速統計圖片數量（用於 PIXIV）"""
+    """快速統計圖片數量（用於 Gallery）"""
     try:
         count = sum(
             1 for f in manga_path.iterdir() 
@@ -38,25 +38,25 @@ if subdirs:
     # 有子資料夾（漫畫模式）
     chapter_count = len(subdirs)
 else:
-    # 沒有子資料夾（PIXIV 模式）- 直接統計圖片數
+    # 沒有子資料夾（Gallery 模式）- 直接統計圖片數
     chapter_count = self._count_images_fast(manga_dir)
 ```
 
-#### PIXIV API 默認每頁 6 個
+#### Gallery API 默認每頁 6 個
 ```python
-@app.route('/api/pixiv/list')
-def get_pixiv_list():
+@app.route('/api/gallery/list')
+def get_gallery_list():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 6, type=int)  # 默認 6 個
     skip_chapters = request.args.get('skip_chapters', 'true').lower() == 'true'
     
-    result = pixiv_reader.get_manga_list(page=page, per_page=per_page, skip_chapters=skip_chapters)
+    result = gallery_reader.get_manga_list(page=page, per_page=per_page, skip_chapters=skip_chapters)
     return jsonify(result)
 ```
 
 #### 章節名稱優化
 ```python
-# PIXIV 模式：使用資料夾名稱而不是「單行本」
+# Gallery 模式：使用資料夾名稱而不是「單行本」
 chapters.append({
     'name': manga_path.name,  # 資料夾名稱
     'path': formatPathForUrl(manga_path.relative_to(self.root_path)),
@@ -68,8 +68,8 @@ chapters.append({
 
 #### 顯示圖片張數
 ```javascript
-if (currentCategory === 'pixiv') {
-    // PIXIV：顯示圖片張數
+if (currentCategory === 'gallery') {
+    // Gallery：顯示圖片張數
     chaptersHtml = `
         <div class="chapter-item" style="justify-content: center; cursor: default;">
             <span class="chapter-name">📷 ${manga.chapter_count} 張圖片</span>
@@ -140,11 +140,11 @@ async loadImageSequentially(index, onComplete) {
 }
 ```
 
-## 📊 PIXIV 工作流程
+## 📊 Gallery 工作流程
 
 ### 列表頁面載入流程
 ```
-1. 訪問 /pixiv
+1. 訪問 /gallery
    ↓
 2. 載入前 6 個資料夾
    - 只掃描資料夾名稱
@@ -162,10 +162,10 @@ async loadImageSequentially(index, onComplete) {
 
 ### 點擊進入閱讀器流程
 ```
-1. 點擊 PIXIV 資料夾
+1. 點擊 Gallery 資料夾
    ↓
 2. 獲取資料夾詳情
-   - API: /api/pixiv/detail/{path}
+   - API: /api/gallery/detail/{path}
    - 返回圖片列表
    ↓
 3. 進入閱讀器頁面
@@ -202,8 +202,8 @@ async loadImageSequentially(index, onComplete) {
 ### 調整每頁資料夾數量
 在 `app.py` 中修改：
 ```python
-@app.route('/api/pixiv/list')
-def get_pixiv_list():
+@app.route('/api/gallery/list')
+def get_gallery_list():
     per_page = request.args.get('per_page', 6, type=int)  # 改為其他數字
 ```
 
@@ -221,11 +221,11 @@ const timeoutId = setTimeout(() => {
 this.maxRetries = 3;  // 改為其他次數
 ```
 
-## 📱 PIXIV 專屬特性
+## 📱 Gallery 專屬特性
 
 ### 資料夾結構
 ```
-pixiv/
+gallery/
 ├── 作者1/
 │   ├── 001.jpg
 │   ├── 002.jpg
@@ -239,7 +239,7 @@ pixiv/
 ```
 
 ### 顯示方式
-- 📷 **圖示**：表示 PIXIV 作品
+- 📷 **圖示**：表示 Gallery 作品
 - **數字**：顯示圖片張數（不是章節數）
 - **名稱**：使用資料夾名稱作為作品名稱
 
@@ -252,7 +252,7 @@ pixiv/
 
 ### 1. 測試列表載入
 ```
-1. 訪問 http://localhost:5000/pixiv
+1. 訪問 http://localhost:5000/gallery
 2. 確認只顯示 6 個資料夾
 3. 滾動到底部
 4. 確認自動載入更多資料夾
@@ -261,7 +261,7 @@ pixiv/
 
 ### 2. 測試進入閱讀器
 ```
-1. 點擊任意 PIXIV 資料夾
+1. 點擊任意 Gallery 資料夾
 2. 觀察圖片是否依序載入
 3. 確認每張圖片載入完成立即顯示
 4. 不需要滾動即可看到所有圖片
@@ -285,7 +285,7 @@ pixiv/
 
 ## 🎉 現在已完成
 
-✅ PIXIV 列表初始只載入 6 個資料夾  
+✅ Gallery 列表初始只載入 6 個資料夾  
 ✅ 滾輪捲動自動載入更多  
 ✅ 顯示圖片張數而不載入圖片  
 ✅ 閱讀器順序載入圖片  
@@ -294,4 +294,4 @@ pixiv/
 ✅ 自動重試機制  
 ✅ 友好的錯誤提示  
 
-**PIXIV 功能已全面優化完成！** 🎨
+**Gallery 功能已全面優化完成！** 🎨

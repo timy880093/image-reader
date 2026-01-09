@@ -29,9 +29,9 @@ def test_imports():
         from modules.manga.routes import manga_bp
         print("✅ manga 模組導入成功")
         
-        from modules.pixiv.service import PixivService
-        from modules.pixiv.routes import pixiv_bp
-        print("✅ pixiv 模組導入成功")
+        from modules.gallery.service import GalleryService
+        from modules.gallery.routes import gallery_bp
+        print("✅ gallery 模組導入成功")
         
         return True
     except Exception as e:
@@ -52,7 +52,7 @@ def test_config():
         print(f"✅ 配置載入成功")
         print(f"   服務器: {config['server']['host']}:{config['server']['port']}")
         print(f"   漫畫路徑: {config['manga']['root_path']}")
-        print(f"   PIXIV路徑: {config['manga']['pixiv_root_path']}")
+        print(f"   Gallery路徑: {config['manga']['gallery_root_path']}")
         
         frontend_config = get_frontend_config(config)
         print(f"✅ 前端配置提取成功")
@@ -74,7 +74,7 @@ def test_services():
     try:
         from config import load_config
         from modules.manga.service import MangaService
-        from modules.pixiv.service import PixivService
+        from modules.gallery.service import GalleryService
         from pathlib import Path
         
         config = load_config()
@@ -94,16 +94,16 @@ def test_services():
         print(f"   當前頁: {result['page']}")
         print(f"   項目數: {len(result['mangas'])}")
         
-        # 測試 PIXIV 服務
-        pixiv_root = Path(config['manga']['pixiv_root_path'])
-        pixiv_service = PixivService(pixiv_root, IMAGE_EXTENSIONS)
-        print(f"✅ PixivService 初始化成功")
-        print(f"   根路徑: {pixiv_service.root_path}")
-        print(f"   路徑存在: {pixiv_service.root_path.exists()}")
+        # 測試 Gallery 服務
+        gallery_root = Path(config['manga']['gallery_root_path'])
+        gallery_service = GalleryService(gallery_root, IMAGE_EXTENSIONS)
+        print(f"✅ GalleryService 初始化成功")
+        print(f"   根路徑: {gallery_service.root_path}")
+        print(f"   路徑存在: {gallery_service.root_path.exists()}")
         
         # 測試獲取列表
-        result = pixiv_service.get_pixiv_list(page=1, per_page=5, skip_chapters=True)
-        print(f"✅ PIXIV 列表獲取成功")
+        result = gallery_service.get_gallery_list(page=1, per_page=5, skip_chapters=True)
+        print(f"✅ Gallery 列表獲取成功")
         print(f"   總數: {result['total']}")
         print(f"   當前頁: {result['page']}")
         print(f"   項目數: {len(result['mangas'])}")
@@ -127,7 +127,7 @@ def test_app_creation():
         from flask import Flask
         from config import load_config
         from modules.manga.routes import manga_bp
-        from modules.pixiv.routes import pixiv_bp
+        from modules.gallery.routes import gallery_bp
         
         app = Flask(__name__)
         config = load_config()
@@ -135,7 +135,7 @@ def test_app_creation():
         
         # 註冊 Blueprint
         app.register_blueprint(manga_bp)
-        app.register_blueprint(pixiv_bp)
+        app.register_blueprint(gallery_bp)
         
         print(f"✅ Flask 應用創建成功")
         print(f"   已註冊的 Blueprint:")
@@ -187,7 +187,7 @@ def main():
         print("\n下一步:")
         print("1. 運行 'python app_new.py' 啟動服務器")
         print("2. 訪問 http://127.0.0.1:5000/manga 查看漫畫列表")
-        print("3. 訪問 http://127.0.0.1:5000/pixiv 查看 PIXIV 列表（前端待完成）")
+        print("3. 訪問 http://127.0.0.1:5000/gallery 查看 Gallery 列表（前端待完成）")
     else:
         print("\n⚠️ 部分測試失敗，請檢查錯誤信息")
     

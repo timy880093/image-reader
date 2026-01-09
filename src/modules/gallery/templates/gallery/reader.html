@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}PIXIV 閱讀器{% endblock %}
+{% block title %}Gallery 閱讀器{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
@@ -128,7 +128,7 @@
         gap: 0;
     }
     
-    .pixiv-image {
+    .gallery-image {
         /* 自適應畫面大小：不超過視窗寬度和高度的95% */
         max-width: calc(100vw - 40px);
         max-height: calc(95vh - 80px);
@@ -275,7 +275,7 @@
             height: 50px;
         }
         
-        .pixiv-image {
+        .gallery-image {
             max-width: calc(100vw - 20px);
             max-height: calc(95vh - 70px);
         }
@@ -327,5 +327,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/pixiv/reader.js') }}"></script>
+<script src="{{ url_for('static', filename='js/gallery/reader.js') }}"></script>
 {% endblock %}

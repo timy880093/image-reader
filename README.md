@@ -21,7 +21,7 @@ manga-reader/
     ├── core/               # 核心模組
     ├── modules/            # 功能模組
     │   ├── manga/          # 漫畫模組
-    │   └── pixiv/          # PIXIV 模組
+    │   └── gallery/          # Gallery 模組
     ├── static/             # 靜態資源 (CSS, JS)
     └── templates/          # HTML 模板
 ```
@@ -97,7 +97,7 @@ python app.py
 ```toml
 [manga]
 root_path = "E:/test/manga"        # 漫畫根目錄
-pixiv_root_path = "E:/test/pixiv"  # PIXIV 作品目錄
+gallery_root_path = "E:/test/gallery"  # Gallery 作品目錄
 ```
 
 ### 開啟瀏覽器

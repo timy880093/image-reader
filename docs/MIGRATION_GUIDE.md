@@ -10,7 +10,7 @@
 ✅ **前端框架完成** (60%)
 - 基礎模板和共用資源完成
 - 漫畫列表頁面完成
-- PIXIV 和閱讀器頁面待完成
+- Gallery 和閱讀器頁面待完成
 
 ---
 
@@ -90,7 +90,7 @@ python app.py
 
 // 移除以下代碼片段：
 // const pathParts = window.location.pathname.split('/');
-// this.category = pathParts[1]; // 'manga' 或 'pixiv'
+// this.category = pathParts[1]; // 'manga' 或 'gallery'
 
 // 替換為：
 const CATEGORY = 'manga';
@@ -103,28 +103,28 @@ const READER_PREFIX = '/manga/reader/';
 
 ---
 
-## 🎨 完成 PIXIV 模組的步驟
+## 🎨 完成 Gallery 模組的步驟
 
-PIXIV 模組與漫畫模組類似，主要差異：
+Gallery 模組與漫畫模組類似，主要差異：
 
 ### 差異點
 
 1. **列表頁每頁顯示數量**：6 個（vs 漫畫的 50 個）
 2. **圖片載入策略**：懶加載 + 分頁（vs 漫畫的順序載入）
-3. **API 路徑**：`/pixiv/api/*` （vs `/manga/api/*`）
+3. **API 路徑**：`/gallery/api/*` （vs `/manga/api/*`）
 
 ### 快速方法
 
 ```bash
 # 1. 複製漫畫模組的前端文件
-cp static/css/manga.css static/css/pixiv.css
-cp static/css/manga-reader.css static/css/pixiv-reader.css
-cp modules/manga/templates/manga/index.html modules/pixiv/templates/pixiv/index.html
-cp static/js/manga/index.js static/js/pixiv/index.js
+cp static/css/manga.css static/css/gallery.css
+cp static/css/manga-reader.css static/css/gallery-reader.css
+cp modules/manga/templates/manga/index.html modules/gallery/templates/gallery/index.html
+cp static/js/manga/index.js static/js/gallery/index.js
 
 # 2. 在每個複製的文件中執行搜尋替換
-# - 將 /manga/ 替換為 /pixiv/
-# - 將 manga 替換為 pixiv
+# - 將 /manga/ 替換為 /gallery/
+# - 將 manga 替換為 gallery
 # - 調整 per_page 從 50 改為 6
 # - 調整圖片載入邏輯（reader.js）
 ```
@@ -139,8 +139,8 @@ cp static/js/manga/index.js static/js/pixiv/index.js
 # 測試漫畫 API
 curl http://127.0.0.1:5000/manga/api/list?page=1&per_page=10
 
-# 測試 PIXIV API
-curl http://127.0.0.1:5000/pixiv/api/list?page=1&per_page=6
+# 測試 Gallery API
+curl http://127.0.0.1:5000/gallery/api/list?page=1&per_page=6
 
 # 測試配置 API
 curl http://127.0.0.1:5000/api/config
@@ -152,8 +152,8 @@ curl http://127.0.0.1:5000/api/config
 2. ✅ 搜尋功能
 3. ✅ 無限滾動
 4. ⏸️ 漫畫閱讀器
-5. ⏸️ PIXIV 列表頁面
-6. ⏸️ PIXIV 閱讀器
+5. ⏸️ Gallery 列表頁面
+6. ⏸️ Gallery 閱讀器
 
 ---
 
@@ -166,7 +166,7 @@ curl http://127.0.0.1:5000/api/config
 touch core/__init__.py
 touch modules/__init__.py
 touch modules/manga/__init__.py
-touch modules/pixiv/__init__.py
+touch modules/gallery/__init__.py
 ```
 
 ### 問題 2：模板找不到
@@ -230,7 +230,7 @@ class TestMangaService(unittest.TestCase):
 
 ## ✨ 新架構的好處
 
-1. **獨立開發**：可以同時開發漫畫和 PIXIV 功能而不互相干擾
+1. **獨立開發**：可以同時開發漫畫和 Gallery 功能而不互相干擾
 2. **易於測試**：每個模組可以獨立測試
 3. **易於擴展**：新增其他類型（如小說、音樂等）只需創建新模組
 4. **代碼複用**：共用邏輯統一管理，減少重複代碼

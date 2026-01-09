@@ -1,4 +1,4 @@
-# 📋 漫畫與 PIXIV 功能需求計劃
+# 📋 漫畫與 Gallery 功能需求計劃
 
 ## 🎯 需求概述
 
@@ -10,7 +10,7 @@
 | **章節列表** | 按名稱排序，固定高度顯示 5 個章節，超過用卷軸滾動 |
 | **Reader** | 依序顯示該章節所有圖片（一次性載入） |
 
-### PIXIV 模組
+### Gallery 模組
 | 功能區塊 | 需求描述 |
 |---------|----------|
 | **主頁載入** | 首次載入 6 個項目，滾動到底部繼續載入下 6 個 |
@@ -30,11 +30,11 @@
 #### 1.2 漫畫 Routes (`modules/manga/routes.py`)
 - [x] `get_list()` - 預設 `per_page=6`，設定 `skip_chapters=false`
 
-#### 1.3 PIXIV Service (`modules/pixiv/service.py`)
-- [x] `get_pixiv_list()` - 預設 `per_page=6`（已是）
+#### 1.3 Gallery Service (`modules/gallery/service.py`)
+- [x] `get_gallery_list()` - 預設 `per_page=6`（已是）
 - [x] `get_chapter_images_paginated()` - 支援 `limit=3` 分頁
 
-#### 1.4 PIXIV Routes (`modules/pixiv/routes.py`)
+#### 1.4 Gallery Routes (`modules/gallery/routes.py`)
 - [x] `get_list()` - 預設 `per_page=6`（已是）
 - [x] `get_chapter_images()` - 預設 `limit=3`，返回總數
 
@@ -54,13 +54,13 @@
 |------|----------|
 | `.chapter-list` | 固定高度（約 5 個章節），overflow-y: auto |
 
-#### 2.3 PIXIV 主頁 JS (新建 `static/js/pixiv/index.js`)
+#### 2.3 Gallery 主頁 JS (新建 `static/js/gallery/index.js`)
 | 項目 | 修改內容 |
 |------|----------|
 | 載入邏輯 | `per_page=6`，無限滾動載入 |
 | 圖卡顯示 | 顯示圖片數量（不顯示章節） |
 
-#### 2.4 PIXIV CSS (新建 `static/css/pixiv.css`)
+#### 2.4 Gallery CSS (新建 `static/css/gallery.css`)
 | 項目 | 修改內容 |
 |------|----------|
 | `.image-count` | 圖片數量樣式 |
@@ -71,7 +71,7 @@
 | 載入邏輯 | 一次載入所有圖片 |
 | 顯示方式 | 順序顯示 |
 
-#### 2.6 PIXIV Reader JS (新建 `static/js/pixiv/reader.js`)
+#### 2.6 Gallery Reader JS (新建 `static/js/gallery/reader.js`)
 | 項目 | 修改內容 |
 |------|----------|
 | 初始載入 | 前 3 張圖片 + 空佔位符 |
@@ -82,9 +82,9 @@
 
 ### 3. 模板修改
 
-#### 3.1 PIXIV 模板 (新建)
-- `modules/pixiv/templates/pixiv/index.html` - PIXIV 主頁模板
-- `modules/pixiv/templates/pixiv/reader.html` - PIXIV 閱讀器模板
+#### 3.1 Gallery 模板 (新建)
+- `modules/gallery/templates/gallery/index.html` - Gallery 主頁模板
+- `modules/gallery/templates/gallery/reader.html` - Gallery 閱讀器模板
 
 #### 3.2 漫畫 Reader 模板 (新建)
 - `modules/manga/templates/manga/reader.html` - 漫畫閱讀器模板
@@ -104,11 +104,11 @@ manga_reader/
 │   │           ├── index.html     ✅ 已存在
 │   │           └── reader.html    🆕 新建
 │   │
-│   └── pixiv/
+│   └── gallery/
 │       ├── routes.py              ✏️ 修改
 │       ├── service.py             ✏️ 修改
 │       └── templates/
-│           └── pixiv/
+│           └── gallery/
 │               ├── index.html     🆕 新建
 │               └── reader.html    🆕 新建
 │
@@ -116,14 +116,14 @@ manga_reader/
 │   ├── css/
 │   │   ├── common.css             ✅ 已存在
 │   │   ├── manga.css              ✏️ 修改
-│   │   └── pixiv.css              🆕 新建
+│   │   └── gallery.css              🆕 新建
 │   │
 │   └── js/
 │       ├── common.js              ✅ 已存在
 │       ├── manga/
 │       │   ├── index.js           ✏️ 修改
 │       │   └── reader.js          🆕 新建
-│       └── pixiv/
+│       └── gallery/
 │           ├── index.js           🆕 新建
 │           └── reader.js          🆕 新建
 ```
@@ -152,29 +152,29 @@ manga_reader/
     → 一次性顯示所有圖片
 ```
 
-### PIXIV 主頁流程
+### Gallery 主頁流程
 ```
 [頁面載入]
-    → API: GET /pixiv/api/list?page=1&per_page=6&skip_chapters=true
+    → API: GET /gallery/api/list?page=1&per_page=6&skip_chapters=true
     → 返回: { mangas: [{name, path, chapter_count (圖片數), cover_image}], total, page, total_pages }
     → 顯示 6 個作品卡片（顯示圖片數量）
 
 [滾動到底部]
-    → API: GET /pixiv/api/list?page=2&per_page=6&skip_chapters=true
+    → API: GET /gallery/api/list?page=2&per_page=6&skip_chapters=true
     → 追加 6 個作品卡片
 ```
 
-### PIXIV Reader 流程
+### Gallery Reader 流程
 ```
 [頁面載入]
-    → API: GET /pixiv/api/chapter/{chapter_path}?limit=3&offset=0
+    → API: GET /gallery/api/chapter/{chapter_path}?limit=3&offset=0
     → 返回: { images: [...], total: N, offset: 0, limit: 3 }
     → 顯示前 3 張圖片 + (N-3) 個空佔位符
     → 顯示 "共 N 張圖片"
 
 [滾動到佔位符]
     → Intersection Observer 觸發
-    → API: GET /pixiv/api/chapter/{chapter_path}?limit=3&offset=3
+    → API: GET /gallery/api/chapter/{chapter_path}?limit=3&offset=3
     → 載入圖片，替換佔位符
 ```
 
@@ -184,23 +184,23 @@ manga_reader/
 
 1. **Phase 1: 後端 API 調整**
    - 修改漫畫 service/routes（per_page=6, include_chapters）
-   - 修改 PIXIV routes（確保分頁參數正確）
+   - 修改 Gallery routes（確保分頁參數正確）
 
 2. **Phase 2: 漫畫前端**
    - 修改 `manga/index.js`（per_page=6, 顯示章節）
    - 修改 `manga.css`（章節列表固定高度）
    - 新建 `manga/reader.js` + `manga/reader.html`
 
-3. **Phase 3: PIXIV 前端**
-   - 新建 `pixiv/index.js` + `pixiv/index.html`
-   - 新建 `pixiv.css`
-   - 新建 `pixiv/reader.js` + `pixiv/reader.html`（懶加載）
+3. **Phase 3: Gallery 前端**
+   - 新建 `gallery/index.js` + `gallery/index.html`
+   - 新建 `gallery.css`
+   - 新建 `gallery/reader.js` + `gallery/reader.html`（懶加載）
 
 4. **Phase 4: 測試驗證**
    - 漫畫主頁滾動載入
    - 漫畫章節列表滾動
-   - PIXIV 主頁滾動載入
-   - PIXIV Reader 懶加載
+   - Gallery 主頁滾動載入
+   - Gallery Reader 懶加載
 
 ---
 
@@ -212,7 +212,7 @@ manga_reader/
 | 漫畫主頁 | 無限滾動 | 滾動到底部載入下 6 個 |
 | 漫畫主頁 | 章節列表 | 固定高度，顯示 5 個，超過可滾動 |
 | 漫畫 Reader | 圖片顯示 | 一次顯示所有圖片 |
-| PIXIV 主頁 | 初始載入 | 顯示 6 個作品卡片 |
-| PIXIV 主頁 | 圖片數量 | 卡片下方顯示圖片數量 |
-| PIXIV Reader | 初始載入 | 顯示前 3 張 + 佔位符 + 總數 |
-| PIXIV Reader | 懶加載 | 滾動到佔位符載入下 3 張 |
+| Gallery 主頁 | 初始載入 | 顯示 6 個作品卡片 |
+| Gallery 主頁 | 圖片數量 | 卡片下方顯示圖片數量 |
+| Gallery Reader | 初始載入 | 顯示前 3 張 + 佔位符 + 總數 |
+| Gallery Reader | 懶加載 | 滾動到佔位符載入下 3 張 |

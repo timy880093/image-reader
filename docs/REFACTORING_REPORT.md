@@ -16,9 +16,9 @@
 - ✅ `modules/manga/service.py` - 漫畫業務邏輯
 - ✅ `modules/manga/routes.py` - 漫畫路由 (Blueprint)
 
-#### PIXIV 模組 (`modules/pixiv/`)
-- ✅ `modules/pixiv/service.py` - PIXIV 業務邏輯
-- ✅ `modules/pixiv/routes.py` - PIXIV 路由 (Blueprint)
+#### Gallery 模組 (`modules/gallery/`)
+- ✅ `modules/gallery/service.py` - Gallery 業務邏輯
+- ✅ `modules/gallery/routes.py` - Gallery 路由 (Blueprint)
 
 #### 主應用程式
 - ✅ `app_new.py` - 新版應用程式入口（Blueprint 架構）
@@ -37,12 +37,12 @@
 - ⏸️ `modules/manga/templates/manga/reader.html` - 漫畫閱讀器頁面（待完成）
 - ⏸️ `static/js/manga/reader.js` - 漫畫閱讀器邏輯（待完成）
 
-#### PIXIV 模組前端
-- ⏸️ `static/css/pixiv.css` - PIXIV 專屬樣式（待完成）
-- ⏸️ `modules/pixiv/templates/pixiv/index.html` - PIXIV 列表頁面（待完成）
-- ⏸️ `static/js/pixiv/index.js` - PIXIV 列表邏輯（待完成）
-- ⏸️ `modules/pixiv/templates/pixiv/reader.html` - PIXIV 閱讀器頁面（待完成）
-- ⏸️ `static/js/pixiv/reader.js` - PIXIV 閱讀器邏輯（待完成）
+#### Gallery 模組前端
+- ⏸️ `static/css/gallery.css` - Gallery 專屬樣式（待完成）
+- ⏸️ `modules/gallery/templates/gallery/index.html` - Gallery 列表頁面（待完成）
+- ⏸️ `static/js/gallery/index.js` - Gallery 列表邏輯（待完成）
+- ⏸️ `modules/gallery/templates/gallery/reader.html` - Gallery 閱讀器頁面（待完成）
+- ⏸️ `static/js/gallery/reader.js` - Gallery 閱讀器邏輯（待完成）
 
 ---
 
@@ -69,19 +69,19 @@
    # 移除 category 相關的條件判斷
    ```
 
-### Step 2: 完成 PIXIV 前端
+### Step 2: 完成 Gallery 前端
 
 1. **複製並修改漫畫模組的前端文件**
    ```bash
-   # PIXIV 的邏輯與漫畫類似，但有以下差異：
+   # Gallery 的邏輯與漫畫類似，但有以下差異：
    # - 預設每頁顯示 6 個項目
    # - 使用分頁載入圖片
    # - 章節名稱使用資料夾名稱
    ```
 
-2. **創建 PIXIV 專屬樣式**
+2. **創建 Gallery 專屬樣式**
    ```bash
-   # 文件: static/css/pixiv.css
+   # 文件: static/css/gallery.css
    # 可選：調整卡片大小、顏色等以區分視覺效果
    ```
 
@@ -104,8 +104,8 @@
 3. **測試功能**
    - 測試漫畫列表載入
    - 測試漫畫閱讀器
-   - 測試 PIXIV 列表載入
-   - 測試 PIXIV 閱讀器
+   - 測試 Gallery 列表載入
+   - 測試 Gallery 閱讀器
    - 測試搜尋功能
    - 測試分頁功能
 
@@ -114,7 +114,7 @@
 ## 🎯 新架構的優勢
 
 ### 1. **模組化隔離**
-- 漫畫和 PIXIV 完全獨立
+- 漫畫和 Gallery 完全獨立
 - 修改一個模組不影響另一個
 - 新增分類只需創建新模組
 
@@ -184,12 +184,12 @@ manga_reader/
 │   │       └── manga/
 │   │           ├── index.html ✅
 │   │           └── reader.html ⏸️
-│   └── pixiv/
+│   └── gallery/
 │       ├── __init__.py
 │       ├── routes.py
 │       ├── service.py
 │       └── templates/
-│           └── pixiv/
+│           └── gallery/
 │               ├── index.html ⏸️
 │               └── reader.html ⏸️
 ├── static/                         # 靜態資源 (NEW)
@@ -197,14 +197,14 @@ manga_reader/
 │   │   ├── common.css ✅
 │   │   ├── manga.css ✅
 │   │   ├── manga-reader.css ⏸️
-│   │   ├── pixiv.css ⏸️
-│   │   └── pixiv-reader.css ⏸️
+│   │   ├── gallery.css ⏸️
+│   │   └── gallery-reader.css ⏸️
 │   └── js/
 │       ├── common.js ✅
 │       ├── manga/
 │       │   ├── index.js ✅
 │       │   └── reader.js ⏸️
-│       └── pixiv/
+│       └── gallery/
 │           ├── index.js ⏸️
 │           └── reader.js ⏸️
 ├── templates/                      # 共用模板 (NEW)
@@ -245,7 +245,7 @@ http://127.0.0.1:5000/manga
 ## ⚠️ 注意事項
 
 1. **不要刪除舊文件**，先確保新架構完全正常工作
-2. **逐步遷移**，先完成漫畫模組，再完成 PIXIV 模組
+2. **逐步遷移**，先完成漫畫模組，再完成 Gallery 模組
 3. **保持 API 兼容性**，確保前端能正常呼叫後端 API
 4. **測試各種場景**，包括空資料夾、大量文件等
 
@@ -254,7 +254,7 @@ http://127.0.0.1:5000/manga
 ## 📝 下一步建議
 
 1. **立即完成**: 漫畫閱讀器前端（reader.html + reader.js）
-2. **然後完成**: PIXIV 模組前端（複製並修改漫畫模組）
+2. **然後完成**: Gallery 模組前端（複製並修改漫畫模組）
 3. **最後**: 完整測試並遷移到新架構
 
 ---
@@ -263,7 +263,7 @@ http://127.0.0.1:5000/manga
 
 如需協助完成剩餘部分，請告知需要完成哪個模組，我可以：
 1. 從舊模板提取並轉換為新格式
-2. 創建 PIXIV 專屬的樣式和邏輯
+2. 創建 Gallery 專屬的樣式和邏輯
 3. 提供完整的測試用例
 
 新架構已經搭建完成，後端完全可用，前端框架也已建立。剩餘工作主要是將現有的 HTML/CSS/JS 重新組織到新的目錄結構中。

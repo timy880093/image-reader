@@ -1,17 +1,17 @@
 /**
- * PIXIV 閱讀器 JavaScript
+ * Gallery 閱讀器 JavaScript
  * 優化版：一次性載入所有圖片 URL，前端分批渲染，搭配圖片預載入
  */
 
-class PixivReader {
+class GalleryReader {
     constructor() {
         // 從路徑中提取章節路徑
         const pathParts = window.location.pathname.split('/');
         this.chapterPath = decodeURIComponent(pathParts.slice(3).join('/'));
 
         // 設置 API 端點
-        this.apiChapterEndpoint = '/pixiv/api/chapter/';
-        this.imagePrefix = '/pixiv/image/';
+        this.apiChapterEndpoint = '/gallery/api/chapter/';
+        this.imagePrefix = '/gallery/image/';
 
         this.allImageUrls = [];  // 所有圖片 URL
         this.totalImages = 0;
@@ -152,7 +152,7 @@ class PixivReader {
 
     createImageElement(imagePath, index) {
         const img = document.createElement('img');
-        img.className = 'pixiv-image loaded';
+        img.className = 'gallery-image loaded';
         img.dataset.index = index;
         img.dataset.loaded = 'true';
         img.alt = `第 ${index + 1} 張`;
@@ -227,7 +227,7 @@ class PixivReader {
 
             // 創建圖片元素
             const img = document.createElement('img');
-            img.className = 'pixiv-image';
+            img.className = 'gallery-image';
             img.dataset.index = index;
             img.dataset.loaded = 'true';
             img.alt = `第 ${index + 1} 張`;
@@ -296,13 +296,13 @@ class PixivReader {
 
     gotoPrevChapter() {
         if (this.navigation && this.navigation.prev) {
-            window.location.href = `/pixiv/reader/${encodeURIComponent(this.navigation.prev.path)}`;
+            window.location.href = `/gallery/reader/${encodeURIComponent(this.navigation.prev.path)}`;
         }
     }
 
     gotoNextChapter() {
         if (this.navigation && this.navigation.next) {
-            window.location.href = `/pixiv/reader/${encodeURIComponent(this.navigation.next.path)}`;
+            window.location.href = `/gallery/reader/${encodeURIComponent(this.navigation.next.path)}`;
         }
     }
 
@@ -318,7 +318,7 @@ class PixivReader {
 
 // 全域函數（供 HTML 調用）
 function goToIndex() {
-    window.location.href = '/pixiv';
+    window.location.href = '/gallery';
 }
 
 function gotoPrevChapter() {
@@ -351,5 +351,5 @@ function retryLoad() {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
-    window.reader = new PixivReader();
+    window.reader = new GalleryReader();
 });
