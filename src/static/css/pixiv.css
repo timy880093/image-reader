@@ -1,0 +1,142 @@
+/**
+ * PIXIV 模組專屬樣式
+ */
+
+/* 篩選標籤區 */
+.filter-tags {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.filter-btn.active:hover {
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.work-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    overflow: hidden;
+    height: auto;
+}
+
+.work-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+}
+
+.work-cover {
+    width: 100%;
+    height: 250px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.work-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s;
+}
+
+.work-cover:hover img {
+    transform: scale(1.05);
+}
+
+.work-cover-placeholder {
+    color: #999;
+    font-size: 48px;
+    opacity: 0.3;
+}
+
+.work-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+    border-bottom: 2px solid #ff6b9d;
+    padding-bottom: 10px;
+}
+
+.image-count-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    gap: 8px;
+}
+
+.image-count-icon {
+    font-size: 20px;
+}
+
+.image-count-text {
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .work-card {
+        padding: 15px;
+    }
+    
+    .work-cover {
+        height: 200px;
+    }
+    
+    .work-title {
+        font-size: 1rem;
+    }
+    
+    .image-count-text {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .work-cover {
+        height: 220px;
+    }
+}

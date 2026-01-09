@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title or 'PIXIV作品閱讀器' }}{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pixiv.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>🎨 {{ title or 'PIXIV作品閱讀器' }}</h1>
+        <p>探索您的 PIXIV 作品收藏</p>
+        <div class="nav-menu">
+            <a href="/manga">📚 漫畫</a>
+            <a href="/pixiv" class="active">🎨 PIXIV</a>
+        </div>
+    </div>
+    
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="搜尋 PIXIV 作品...">
+        <div class="filter-tags">
+            <button id="filterAll" class="filter-btn active" onclick="setFilter(null)">全部</button>
+            <button id="filterGod" class="filter-btn" onclick="setFilter('pixiv神')">⭐ PIXIV神</button>
+        </div>
+    </div>
+    
+    <div id="loading" class="loading">載入中...</div>
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+    <div id="mangaGrid" class="manga-grid"></div>
+    <div id="noResults" class="no-results" style="display: none;">沒有找到匹配的作品</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pixiv/index.js') }}"></script>
+{% endblock %}

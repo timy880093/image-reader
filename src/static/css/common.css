@@ -1,0 +1,129 @@
+/**
+ * 共用樣式
+ * 所有模組通用的基礎樣式
+ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #b8a9c9 0%, #a294b8 50%, #8e7ca8 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    color: white;
+    margin-bottom: 40px;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.search-box {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin-bottom: 30px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.search-input:focus {
+    border-color: #667eea;
+}
+
+.loading {
+    text-align: center;
+    color: white;
+    font-size: 18px;
+    margin: 50px 0;
+}
+
+.error-message {
+    background: #ff6b6b;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.no-results {
+    text-align: center;
+    color: white;
+    font-size: 18px;
+    margin-top: 50px;
+}
+
+/* 導航選單 */
+.nav-menu {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.nav-menu a {
+    padding: 10px 20px;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.nav-menu a.active {
+    background: #667eea;
+}
+
+.nav-menu a:not(.active) {
+    background: rgba(255,255,255,0.2);
+}
+
+.nav-menu a:hover {
+    background: #5a6fd8;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .container {
+        padding: 10px;
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* HTML 轉義工具函數 */
+.hidden {
+    display: none !important;
+}

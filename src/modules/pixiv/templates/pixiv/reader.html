@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}PIXIV 閱讀器{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        background: #1a1a1a;
+        color: white;
+        font-family: 'Microsoft YaHei', sans-serif;
+        overflow: hidden;
+    }
+    
+    .reader-container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .toolbar {
+        background: rgba(0, 0, 0, 0.9);
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+    
+    .toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .toolbar-center {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .back-btn {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+    }
+    
+    .back-btn:hover {
+        background: #5a6fd8;
+    }
+    
+    .nav-chapter-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+    
+    .nav-chapter-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .nav-chapter-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .chapter-info {
+        font-size: 16px;
+        font-weight: bold;
+    }
+    
+    .page-info {
+        font-size: 14px;
+        white-space: nowrap;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 6px 12px;
+        border-radius: 15px;
+    }
+    
+    .image-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        margin-top: 60px;
+        padding: 10px;
+        overflow-y: auto;
+        gap: 0;
+        text-align: center;
+    }
+    
+    #imagesContainer {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+    }
+    
+    .pixiv-image {
+        /* 自適應畫面大小：不超過視窗寬度和高度的95% */
+        max-width: calc(100vw - 40px);
+        max-height: calc(95vh - 80px);
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        margin: 0 auto;
+        padding: 0;
+        border: none;
+        outline: none;
+        display: block;
+    }
+    
+    .image-placeholder {
+        /* 佔位符也要自適應 */
+        width: calc(100vw - 40px);
+        max-width: 800px;
+        height: calc(100vh - 100px);
+        max-height: 600px;
+        min-height: 300px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .image-placeholder:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .placeholder-content {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .placeholder-icon {
+        font-size: 64px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+    
+    .placeholder-text {
+        font-size: 18px;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+    
+    .placeholder-hint {
+        font-size: 12px;
+        opacity: 0.7;
+    }
+    
+    .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        font-size: 18px;
+    }
+    
+    .error {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        color: #ff6b6b;
+        font-size: 18px;
+        flex-direction: column;
+    }
+    
+    .nav-button {
+        position: fixed;
+        bottom: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px;
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        z-index: 100;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .nav-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+    
+    .nav-top {
+        right: 100px;
+    }
+    
+    .nav-bottom {
+        right: 30px;
+    }
+    
+    .controls-hint {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-size: 12px;
+        opacity: 0.7;
+        transition: opacity 0.3s;
+    }
+    
+    .controls-hint:hover {
+        opacity: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .toolbar {
+            padding: 10px;
+        }
+        
+        .chapter-info {
+            font-size: 14px;
+        }
+        
+        .page-info {
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+        
+        .nav-button {
+            padding: 10px;
+            font-size: 16px;
+            width: 50px;
+            height: 50px;
+        }
+        
+        .pixiv-image {
+            max-width: calc(100vw - 20px);
+            max-height: calc(95vh - 70px);
+        }
+        
+        .image-placeholder {
+            width: calc(100vw - 20px);
+            min-height: 250px;
+            max-height: 400px;
+        }
+        
+        .placeholder-icon {
+            font-size: 48px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reader-container">
+    <div id="toolbar" class="toolbar">
+        <div class="toolbar-left">
+            <button class="back-btn" onclick="goToIndex()">← 回到目錄</button>
+            <div id="chapterInfo" class="chapter-info">載入中...</div>
+        </div>
+        <div class="toolbar-center">
+            <button id="prevChapterBtn" class="nav-chapter-btn" onclick="gotoPrevChapter()" disabled>← 上一個</button>
+            <button id="nextChapterBtn" class="nav-chapter-btn" onclick="gotoNextChapter()" disabled>下一個 →</button>
+        </div>
+        <div class="toolbar-right">
+            <div id="pageInfo" class="page-info">--</div>
+        </div>
+    </div>
+    
+    <div class="image-container" id="imageContainer">
+        <div id="loading" class="loading">載入中...</div>
+        <div id="error" class="error" style="display: none;">
+            <p>載入失敗</p>
+            <button onclick="retryLoad()" style="margin-top: 10px; padding: 10px 20px;">重新載入</button>
+        </div>
+        <div id="imagesContainer"></div>
+        <button class="nav-button nav-top" onclick="scrollToTop()" title="回到頂部">↑</button>
+        <button class="nav-button nav-bottom" onclick="scrollToBottom()" title="到底部">↓</button>
+    </div>
+    
+    <div class="controls-hint">
+        滾動閱讀 | 滾動到佔位符自動載入 | ← → 切換作品 | Home/End 翻頁
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pixiv/reader.js') }}"></script>
+{% endblock %}

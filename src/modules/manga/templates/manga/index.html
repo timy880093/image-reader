@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title or '漫畫閱讀器' }}{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/manga.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>📚 {{ title or '本地漫畫閱讀器' }}</h1>
+        <p>探索您的漫畫收藏</p>
+        <div class="nav-menu">
+            <a href="/manga" class="active">📚 漫畫</a>
+            <a href="/pixiv">🎨 PIXIV</a>
+        </div>
+    </div>
+    
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="搜尋漫畫名稱...">
+    </div>
+    
+    <div id="loading" class="loading">載入中...</div>
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+    <div id="mangaGrid" class="manga-grid"></div>
+    <div id="noResults" class="no-results" style="display: none;">沒有找到匹配的漫畫</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/manga/index.js') }}"></script>
+{% endblock %}

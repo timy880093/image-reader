@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}本地漫畫閱讀器{% endblock %}</title>
+    
+    <!-- 共用樣式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+    
+    <!-- 模組專屬樣式 -->
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    {% block content %}{% endblock %}
+    
+    <!-- 共用腳本 -->
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    
+    <!-- 模組專屬腳本 -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>
