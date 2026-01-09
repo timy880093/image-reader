@@ -1,20 +1,27 @@
-# 本地漫畫閱讀器配置文件
-# Local Manga Reader Configuration
+# 本地漫畫閱讀器配置文件範本
+# Local Manga Reader Configuration Template
+# 
+# 使用方法：
+# 1. 複製此文件為 config.toml
+# 2. 修改以下設定值以符合你的環境
 
 [server]
 # 服務器設定
 host = "127.0.0.1"          # 服務器主機地址
 port = 5000                 # 服務器端口
 debug = true                # 開發模式（生產環境請設為 false）
-secret_key = "manga-reader-2025-change-this-in-production"  # 密鑰（生產環境請更改）
+secret_key = "your-secret-key-here-please-change-this"  # 密鑰（請務必更改！）
 
 [manga]
 # 漫畫資料夾設定
-root_path = "E:/test/manga"  # Windows 絕對路徑範例
-# root_path = "/home/user/manga"  # Linux 絕對路徑範例
+root_path = "./test_manga"   # 漫畫根目錄路徑
+# Windows 範例: "E:/test/manga"
+# Linux 範例: "/home/user/manga"
 
 # Gallery 作品資料夾設定
-gallery_root_path = "E:/test/pixiv"  # Gallery 作品根目錄路徑
+gallery_root_path = "./test_gallery"  # Gallery 作品根目錄路徑
+# Windows 範例: "E:/test/gallery"
+# Linux 範例: "/home/user/gallery"
 
 [gallery]
 # Gallery 閱讀器設定

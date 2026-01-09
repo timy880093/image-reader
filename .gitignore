@@ -41,5 +41,5 @@ Thumbs.db
 .backup/
 *.log
 
-# Config (uncomment if you want to keep config private)
-# config.toml
+# Config (keep local configuration private)
+config.toml

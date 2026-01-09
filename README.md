@@ -92,13 +92,29 @@ python app.py
 
 ### 配置漫畫路徑
 
-編輯專案根目錄的 `config.toml` 檔案：
+**首次使用請先配置：**
 
-```toml
-[manga]
-root_path = "E:/test/manga"        # 漫畫根目錄
-gallery_root_path = "E:/test/gallery"  # Gallery 作品目錄
-```
+1. 複製 `config.toml.example` 為 `config.toml`
+   ```bash
+   # Windows PowerShell
+   Copy-Item config.toml.example config.toml
+   
+   # Linux/Mac
+   cp config.toml.example config.toml
+   ```
+
+2. 編輯 `config.toml` 設定你的路徑和密鑰：
+
+   ```toml
+   [server]
+   secret_key = "your-unique-secret-key-here"  # 請更改為唯一密鑰
+   
+   [manga]
+   root_path = "E:/test/manga"                # 你的漫畫根目錄
+   gallery_root_path = "E:/test/pixiv"        # 你的 Gallery 作品目錄
+   ```
+
+> ⚠️ **注意**：`config.toml` 包含本地路徑和密鑰，已加入 `.gitignore`，不會被推送到 Git。
 
 ### 開啟瀏覽器
 
