@@ -17,17 +17,20 @@ manga_bp = Blueprint(
 
 # 服務實例（將在 app.py 中初始化）
 manga_service = None
+status_manager = None
 
 
-def init_service(service):
+def init_service(service, status_mgr=None):
     """
     初始化服務實例
     
     Args:
         service: MangaService 實例
+        status_mgr: StatusManager 實例
     """
-    global manga_service
+    global manga_service, status_manager
     manga_service = service
+    status_manager = status_mgr
 
 
 @manga_bp.route('/')
@@ -44,8 +47,15 @@ def get_list():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 6, type=int)
     skip_chapters = request.args.get('skip_chapters', 'false').lower() == 'true'  # 預設載入章節
+    status_filter = request.args.get('status', None)  # 狀態篩選
     
-    result = manga_service.get_manga_list(page=page, per_page=per_page, skip_chapters=skip_chapters)
+    result = manga_service.get_manga_list(
+        page=page, 
+        per_page=per_page, 
+        skip_chapters=skip_chapters,
+        status_filter=status_filter,
+        status_manager=status_manager
+    )
     return jsonify(result)
 
 
@@ -92,6 +102,35 @@ def serve_image(image_path):
         return jsonify({'error': '圖片不存在'}), 404
     
     return send_file(str(full_path))
+
+
+@manga_bp.route('/api/status/<path:manga_path>', methods=['GET'])
+def get_status(manga_path):
+    """API：獲取漫畫狀態"""
+    if not status_manager:
+        return jsonify({'status': 'reviewed'}), 200
+    
+    status = status_manager.get_status('manga', manga_path)
+    return jsonify({'status': status})
+
+
+@manga_bp.route('/api/status/<path:manga_path>', methods=['POST'])
+def set_status(manga_path):
+    """API：設定漫畫狀態"""
+    if not status_manager:
+        return jsonify({'error': '狀態管理器未初始化'}), 500
+    
+    data = request.get_json()
+    new_status = data.get('status')
+    
+    if new_status not in ['favorite', 'unreviewed', 'reviewed']:
+        return jsonify({'error': '無效的狀態'}), 400
+    
+    success = status_manager.set_status('manga', manga_path, new_status)
+    if success:
+        return jsonify({'success': True, 'status': new_status})
+    else:
+        return jsonify({'error': '設定失敗'}), 500
 
 
 @manga_bp.route('/reader/<path:chapter_path>')

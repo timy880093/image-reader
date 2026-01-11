@@ -7,7 +7,7 @@ let config = {};
 let currentPage = 1;
 let totalPages = 1;
 let isLoading = false;
-let currentFilter = null;
+let currentStatusFilter = 'all';  // 改為狀態篩選
 let currentSearchKeyword = '';
 let searchDebounceTimer = null;
 
@@ -51,6 +51,21 @@ function bindEvents() {
         }, searchDebounceMs);
     });
 
+    // 篩選按鈕事件
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // 移除所有 active 類
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            // 添加 active 到點擊的按鈕
+            e.target.classList.add('active');
+            // 設置當前篩選
+            currentStatusFilter = e.target.dataset.status;
+            // 重新載入
+            currentPage = 1;
+            loadWorks();
+        });
+    });
+
     // 滾動事件（無限滾動）
     window.addEventListener('scroll', throttle(handleScroll, 200));
 }
@@ -72,9 +87,9 @@ async function loadWorks(page = 1, append = false) {
         // 使用配置的每頁數量
         let url = `${API_PREFIX}/list?page=${page}&per_page=${perPage}`;
 
-        // 如果有篩選標籤，加入參數
-        if (currentFilter) {
-            url += `&filter_tag=${encodeURIComponent(currentFilter)}`;
+        // 添加狀態篩選參數
+        if (currentStatusFilter && currentStatusFilter !== 'all') {
+            url += `&status=${currentStatusFilter}`;
         }
 
         // 如果有搜尋關鍵字，加入參數
@@ -175,31 +190,6 @@ function filterWorks(searchTerm) {
         work.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     displayWorks(filtered);
-}
-
-// 設定篩選標籤
-function setFilter(filterTag) {
-    currentFilter = filterTag;
-    currentPage = 1;
-    currentSearchKeyword = '';  // 清除搜尋關鍵字
-    allWorks = [];
-
-    // 更新按鈕狀態
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    if (filterTag) {
-        document.getElementById('filterGod').classList.add('active');
-    } else {
-        document.getElementById('filterAll').classList.add('active');
-    }
-
-    // 清空搜尋框
-    document.getElementById('searchInput').value = '';
-
-    // 重新載入
-    loadWorks(1, false);
 }
 
 // 更新分頁信息

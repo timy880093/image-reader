@@ -26,10 +26,13 @@
     
     <div class="search-box">
         <input type="text" id="searchInput" class="search-input" placeholder="搜尋 Gallery 作品...">
-        <div class="filter-tags">
-            <button id="filterAll" class="filter-btn active" onclick="setFilter(null)">全部</button>
-            <button id="filterGod" class="filter-btn" onclick="setFilter('{{ gallery_config.get('special_tag_marker', '.special') }}')">{{ gallery_config.get('special_tag_name', '⭐ 精選') }}</button>
-        </div>
+    </div>
+    
+    <div class="filter-bar">
+        <button class="filter-btn active" data-status="all">全部</button>
+        <button class="filter-btn" data-status="favorite">⭐ 收藏</button>
+        <button class="filter-btn" data-status="reviewed">☑ 已審核</button>
+        <button class="filter-btn" data-status="unreviewed">🆕 未審核</button>
     </div>
     
     <div id="loading" class="loading">載入中...</div>

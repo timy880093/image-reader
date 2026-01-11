@@ -68,9 +68,7 @@ def get_default_config():
             'per_page': 6,
             'search_debounce_ms': 300,
             'skip_chapters_on_list': True,
-            'default_filter': '',
-            'special_tag_name': '⭐ 精選',
-            'special_tag_marker': '.special'
+            'default_filter': ''
         },
         'reader': {
             'theme': 'dark',

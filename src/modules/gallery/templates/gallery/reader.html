@@ -104,6 +104,25 @@
         border-radius: 15px;
     }
     
+    .favorite-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 24px;
+        padding: 5px 10px;
+        transition: transform 0.2s;
+        color: #ffd700;
+    }
+    
+    .favorite-btn:hover {
+        transform: scale(1.2);
+    }
+    
+    .favorite-btn.loading {
+        opacity: 0.5;
+        cursor: wait;
+    }
+    
     .image-container {
         flex: 1;
         display: flex;
@@ -305,6 +324,9 @@
             <button id="nextChapterBtn" class="nav-chapter-btn" onclick="gotoNextChapter()" disabled>下一個 →</button>
         </div>
         <div class="toolbar-right">
+            <button id="favoriteBtn" class="favorite-btn" onclick="toggleFavorite()" title="收藏">
+                <span id="favoriteStar">☆</span>
+            </button>
             <div id="pageInfo" class="page-info">--</div>
         </div>
     </div>

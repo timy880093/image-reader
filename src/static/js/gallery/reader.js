@@ -50,6 +50,8 @@ class GalleryReader {
         this.imageContainer = document.getElementById('imageContainer');
         this.prevChapterBtn = document.getElementById('prevChapterBtn');
         this.nextChapterBtn = document.getElementById('nextChapterBtn');
+        this.favoriteBtn = document.getElementById('favoriteBtn');
+        this.favoriteStar = document.getElementById('favoriteStar');
     }
 
     bindEvents() {
@@ -73,10 +75,61 @@ class GalleryReader {
             this.updateNavigationButtons();
             this.createAllPlaceholders();
             this.setupLazyLoading();
+            this.loadFavoriteStatus();
 
         } catch (error) {
             this.showError();
         }
+    }
+
+    async loadFavoriteStatus() {
+        if (!this.navigation || !this.navigation.manga_name) return;
+
+        try {
+            const response = await fetch(`/gallery/api/status/${this.navigation.manga_name}`);
+            if (response.ok) {
+                const data = await response.json();
+                this.updateFavoriteButton(data.status === 'favorite');
+            }
+        } catch (error) {
+            console.warn('無法載入收藏狀態:', error);
+        }
+    }
+
+    async toggleFavorite() {
+        if (!this.navigation || !this.navigation.manga_name) return;
+
+        this.favoriteBtn.classList.add('loading');
+
+        try {
+            const response = await fetch(`/gallery/api/status/${this.navigation.manga_name}`);
+            const currentData = await response.json();
+            const isFavorite = currentData.status === 'favorite';
+
+            // 切換狀態：如果已收藏則改為未審核，否則設為收藏
+            const newStatus = isFavorite ? 'unreviewed' : 'favorite';
+
+            const updateResponse = await fetch(`/gallery/api/status/${this.navigation.manga_name}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (updateResponse.ok) {
+                this.updateFavoriteButton(!isFavorite);
+            }
+        } catch (error) {
+            console.error('更新收藏狀態失敗:', error);
+        } finally {
+            this.favoriteBtn.classList.remove('loading');
+        }
+    }
+
+    updateFavoriteButton(isFavorite) {
+        this.favoriteStar.textContent = isFavorite ? '★' : '☆';
+        this.favoriteBtn.title = isFavorite ? '取消收藏' : '加入收藏';
     }
 
     updateChapterInfo() {
@@ -347,6 +400,12 @@ function scrollToBottom() {
 
 function retryLoad() {
     location.reload();
+}
+
+function toggleFavorite() {
+    if (window.reader) {
+        window.reader.toggleFavorite();
+    }
 }
 
 // 初始化

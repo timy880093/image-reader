@@ -28,6 +28,13 @@
         <input type="text" id="searchInput" class="search-input" placeholder="搜尋漫畫名稱...">
     </div>
     
+    <div class="filter-bar">
+        <button class="filter-btn active" data-status="all">全部</button>
+        <button class="filter-btn" data-status="favorite">⭐ 收藏</button>
+        <button class="filter-btn" data-status="reviewed">☑ 已審核</button>
+        <button class="filter-btn" data-status="unreviewed">🆕 未審核</button>
+    </div>
+    
     <div id="loading" class="loading">載入中...</div>
     <div id="errorMessage" class="error-message" style="display: none;"></div>
     <div id="mangaGrid" class="manga-grid"></div>

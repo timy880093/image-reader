@@ -7,6 +7,7 @@ let config = {};
 let currentPage = 1;
 let totalPages = 1;
 let isLoading = false;
+let currentFilter = 'all';  // 當前篩選狀態
 
 const API_PREFIX = '/manga/api';
 const IMAGE_PREFIX = '/manga/image/';
@@ -35,6 +36,21 @@ function bindEvents() {
         filterMangas(e.target.value);
     });
 
+    // 篩選按鈕事件
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // 移除所有 active 類
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            // 添加 active 到點擊的按鈕
+            e.target.classList.add('active');
+            // 設置當前篩選
+            currentFilter = e.target.dataset.status;
+            // 重新載入
+            currentPage = 1;
+            loadMangas();
+        });
+    });
+
     // 滾動事件（無限滾動）
     window.addEventListener('scroll', throttle(handleScroll, 200));
 }
@@ -50,8 +66,13 @@ async function loadMangas(page = 1, append = false) {
     }
 
     try {
-        // per_page=6, skip_chapters=false (載入章節)
-        const response = await fetch(`${API_PREFIX}/list?page=${page}&per_page=6&skip_chapters=false`);
+        // 構建 API URL，包含狀態篩選
+        let url = `${API_PREFIX}/list?page=${page}&per_page=6&skip_chapters=false`;
+        if (currentFilter && currentFilter !== 'all') {
+            url += `&status=${currentFilter}`;
+        }
+
+        const response = await fetch(url);
         if (!response.ok) {
             throw new Error('無法載入列表');
         }

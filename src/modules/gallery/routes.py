@@ -17,6 +17,7 @@ gallery_bp = Blueprint(
 
 # 服務實例（將在 app.py 中初始化）
 gallery_service = None
+status_manager = None
 # 配置（將在 app.py 中初始化）
 gallery_config = {
     'per_page': 6,
@@ -24,16 +25,18 @@ gallery_config = {
 }
 
 
-def init_service(service, config=None):
+def init_service(service, config=None, status_mgr=None):
     """
     初始化服務實例
     
     Args:
         service: GalleryService 實例
         config: Gallery 配置字典
+        status_mgr: StatusManager 實例
     """
-    global gallery_service, gallery_config
+    global gallery_service, gallery_config, status_manager
     gallery_service = service
+    status_manager = status_mgr
     if config:
         gallery_config.update(config)
 
@@ -61,15 +64,16 @@ def get_list():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', default_per_page, type=int)
     skip_chapters = request.args.get('skip_chapters', str(default_skip_chapters).lower()).lower() == 'true'
-    filter_tag = request.args.get('filter_tag', None)
     search_keyword = request.args.get('search', None)
+    status_filter = request.args.get('status', None)  # 狀態篩選
     
     result = gallery_service.get_gallery_list(
         page=page, 
         per_page=per_page, 
         skip_chapters=skip_chapters,
-        filter_tag=filter_tag,
-        search_keyword=search_keyword
+        search_keyword=search_keyword,
+        status_filter=status_filter,
+        status_manager=status_manager
     )
     return jsonify(result)
 
@@ -131,3 +135,32 @@ def serve_image(image_path):
 def reader_page(chapter_path):
     """Gallery 閱讀器頁面"""
     return render_template('gallery/reader.html', chapter_path=chapter_path, category='gallery')
+
+
+@gallery_bp.route('/api/status/<path:work_path>', methods=['GET'])
+def get_status(work_path):
+    """API：獲取 Gallery 作品狀態"""
+    if not status_manager:
+        return jsonify({'status': 'reviewed'}), 200
+    
+    status = status_manager.get_status('gallery', work_path)
+    return jsonify({'status': status})
+
+
+@gallery_bp.route('/api/status/<path:work_path>', methods=['POST'])
+def set_status(work_path):
+    """API：設定 Gallery 作品狀態"""
+    if not status_manager:
+        return jsonify({'error': '狀態管理器未初始化'}), 500
+    
+    data = request.get_json()
+    new_status = data.get('status')
+    
+    if new_status not in ['favorite', 'unreviewed', 'reviewed']:
+        return jsonify({'error': '無效的狀態'}), 400
+    
+    success = status_manager.set_status('gallery', work_path, new_status)
+    if success:
+        return jsonify({'success': True, 'status': new_status})
+    else:
+        return jsonify({'error': '設定失敗'}), 500

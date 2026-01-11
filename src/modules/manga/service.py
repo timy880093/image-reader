@@ -11,7 +11,7 @@ from core.utils import parsePath, formatPathForUrl
 class MangaService(BaseReader):
     """漫畫服務類別，繼承自 BaseReader"""
     
-    def get_manga_list(self, page=1, per_page=6, skip_chapters=False):
+    def get_manga_list(self, page=1, per_page=6, skip_chapters=False, status_filter=None, status_manager=None):
         """
         獲取所有漫畫列表
         
@@ -19,6 +19,8 @@ class MangaService(BaseReader):
             page: 頁碼（從1開始）
             per_page: 每頁顯示數量（預設6個）
             skip_chapters: 是否跳過章節信息載入（預設載入章節）
+            status_filter: 狀態篩選 (favorite/unreviewed/reviewed)
+            status_manager: 狀態管理器實例
             
         Returns:
             dict: 包含漫畫列表和分頁信息的字典
@@ -30,6 +32,11 @@ class MangaService(BaseReader):
         try:
             # 獲取所有漫畫目錄
             all_dirs = [d for d in self.root_path.iterdir() if d.is_dir()]
+            
+            # 應用狀態篩選
+            if status_filter and status_manager:
+                all_dirs = status_manager.filter_by_status('manga', all_dirs, status_filter)
+            
             total_count = len(all_dirs)
             
             # 排序
