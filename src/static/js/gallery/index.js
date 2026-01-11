@@ -141,6 +141,11 @@ function displayWorks(works) {
             `<img src="${IMAGE_PREFIX}${encodeURIComponent(work.cover_image)}" alt="${escapeHtml(work.name)}" onerror="this.parentElement.innerHTML='<div class=&quot;work-cover-placeholder&quot;>🎨</div>'">` :
             '<div class="work-cover-placeholder">🎨</div>';
 
+        // 收藏按鈕
+        const isFavorite = work.status === 'favorite';
+        const favoriteStar = isFavorite ? '★' : '☆';
+        const favoriteTitle = isFavorite ? '取消收藏' : '加入收藏';
+
         // Gallery 只顯示圖片數量
         const imageCountHtml = `
             <div class="image-count-display">
@@ -153,6 +158,12 @@ function displayWorks(works) {
             <div class="work-card" onclick="openWork('${work.path}')">
                 <div class="work-cover">
                     ${coverImage}
+                    <button class="work-favorite-btn" 
+                            onclick="event.stopPropagation(); toggleCardFavorite('${escapeHtml(work.path)}', this)"
+                            title="${favoriteTitle}"
+                            data-path="${escapeHtml(work.path)}">
+                        ${favoriteStar}
+                    </button>
                 </div>
                 <div class="work-title">${escapeHtml(work.name)}</div>
                 ${imageCountHtml}
@@ -234,5 +245,50 @@ function handleScroll() {
 
     if (scrollTop + windowHeight >= documentHeight - 500) {
         loadWorks(currentPage + 1, true);
+    }
+}
+
+// 切換卡片收藏狀態
+async function toggleCardFavorite(workPath, buttonElement) {
+    buttonElement.classList.add('loading');
+
+    try {
+        // 獲取當前狀態
+        const response = await fetch(`${API_PREFIX}/status/${encodeURIComponent(workPath)}`);
+        const currentData = await response.json();
+        const isFavorite = currentData.status === 'favorite';
+
+        // 切換狀態：如果已收藏則改為未審核，否則設為收藏
+        const newStatus = isFavorite ? 'unreviewed' : 'favorite';
+
+        const updateResponse = await fetch(`${API_PREFIX}/status/${encodeURIComponent(workPath)}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (updateResponse.ok) {
+            // 更新按鈕顯示
+            buttonElement.textContent = isFavorite ? '☆' : '★';
+            buttonElement.title = isFavorite ? '加入收藏' : '取消收藏';
+
+            // 更新 allWorks 陣列中的狀態
+            const work = allWorks.find(w => w.path === workPath);
+            if (work) {
+                work.status = newStatus;
+            }
+
+            // 如果當前在收藏篩選頁，且剛剛取消了收藏，需要重新載入列表
+            if (currentStatusFilter === 'favorite' && isFavorite) {
+                setTimeout(() => loadWorks(), 300);
+            }
+        }
+    } catch (error) {
+        console.error('更新收藏狀態失敗:', error);
+        alert('更新收藏狀態失敗，請稍後再試');
+    } finally {
+        buttonElement.classList.remove('loading');
     }
 }

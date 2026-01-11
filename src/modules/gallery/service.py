@@ -84,7 +84,13 @@ class GalleryService(BaseReader):
                         if len(self.cache) < 100:
                             self.cache[cache_key] = work_info
                     
-                    works.append(work_info)
+                    # 添加狀態信息（不緩存，因為會變動）
+                    if status_manager:
+                        work_info_copy = work_info.copy()
+                        work_info_copy['status'] = status_manager.get_status('gallery', work_dir.name)
+                        works.append(work_info_copy)
+                    else:
+                        works.append(work_info)
                 except Exception as e:
                     print(f"處理 Gallery 作品 {work_dir.name} 時出錯: {e}")
                     continue

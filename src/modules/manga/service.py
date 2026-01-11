@@ -80,7 +80,13 @@ class MangaService(BaseReader):
                         if len(self.cache) < 100:
                             self.cache[cache_key] = manga_info
                     
-                    mangas.append(manga_info)
+                    # 添加狀態信息（不緩存，因為會變動）
+                    if status_manager:
+                        manga_info_copy = manga_info.copy()
+                        manga_info_copy['status'] = status_manager.get_status('manga', manga_dir.name)
+                        mangas.append(manga_info_copy)
+                    else:
+                        mangas.append(manga_info)
                 except Exception as e:
                     print(f"處理漫畫 {manga_dir.name} 時出錯: {e}")
                     continue

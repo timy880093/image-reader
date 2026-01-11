@@ -116,6 +116,11 @@ function displayMangas(mangas) {
             `<img src="${IMAGE_PREFIX}${encodeURIComponent(manga.cover_image)}" alt="${escapeHtml(manga.name)}" onerror="this.parentElement.innerHTML='<div class=&quot;manga-cover-placeholder-with-title&quot;>📚</div>'">` :
             '<div class="manga-cover-placeholder-with-title">📚</div>';
 
+        // 收藏按鈕
+        const isFavorite = manga.status === 'favorite';
+        const favoriteStar = isFavorite ? '★' : '☆';
+        const favoriteTitle = isFavorite ? '取消收藏' : '加入收藏';
+
         let chaptersHtml = '';
         if (manga.chapters && manga.chapters.length > 0) {
             chaptersHtml = manga.chapters.map(chapter => `
@@ -136,6 +141,12 @@ function displayMangas(mangas) {
             <div class="manga-card" onclick="openManga('${manga.path}')">
                 <div class="manga-cover">
                     ${coverImage}
+                    <button class="manga-favorite-btn" 
+                            onclick="event.stopPropagation(); toggleCardFavorite('${escapeHtml(manga.path)}', this)"
+                            title="${favoriteTitle}"
+                            data-path="${escapeHtml(manga.path)}">
+                        ${favoriteStar}
+                    </button>
                 </div>
                 <div class="manga-title">${escapeHtml(manga.name)}</div>
                 <div class="chapter-list">
@@ -232,5 +243,50 @@ function handleScroll() {
 
     if (scrollTop + windowHeight >= documentHeight - 500) {
         loadMangas(currentPage + 1, true);
+    }
+}
+
+// 切換卡片收藏狀態
+async function toggleCardFavorite(mangaPath, buttonElement) {
+    buttonElement.classList.add('loading');
+
+    try {
+        // 獲取當前狀態
+        const response = await fetch(`${API_PREFIX}/status/${encodeURIComponent(mangaPath)}`);
+        const currentData = await response.json();
+        const isFavorite = currentData.status === 'favorite';
+
+        // 切換狀態：如果已收藏則改為未審核，否則設為收藏
+        const newStatus = isFavorite ? 'unreviewed' : 'favorite';
+
+        const updateResponse = await fetch(`${API_PREFIX}/status/${encodeURIComponent(mangaPath)}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (updateResponse.ok) {
+            // 更新按鈕顯示
+            buttonElement.textContent = isFavorite ? '☆' : '★';
+            buttonElement.title = isFavorite ? '加入收藏' : '取消收藏';
+
+            // 更新 allMangas 陣列中的狀態
+            const manga = allMangas.find(m => m.path === mangaPath);
+            if (manga) {
+                manga.status = newStatus;
+            }
+
+            // 如果當前在收藏篩選頁，且剛剛取消了收藏，需要重新載入列表
+            if (currentFilter === 'favorite' && isFavorite) {
+                setTimeout(() => loadMangas(), 300);
+            }
+        }
+    } catch (error) {
+        console.error('更新收藏狀態失敗:', error);
+        alert('更新收藏狀態失敗，請稍後再試');
+    } finally {
+        buttonElement.classList.remove('loading');
     }
 }
