@@ -48,13 +48,15 @@ def get_list():
     per_page = request.args.get('per_page', 6, type=int)
     skip_chapters = request.args.get('skip_chapters', 'false').lower() == 'true'  # 預設載入章節
     status_filter = request.args.get('status', None)  # 狀態篩選
+    favorite_only = request.args.get('favorite_only', 'false').lower() == 'true'  # 只顯示收藏章節
     
     result = manga_service.get_manga_list(
         page=page, 
         per_page=per_page, 
         skip_chapters=skip_chapters,
         status_filter=status_filter,
-        status_manager=status_manager
+        status_manager=status_manager,
+        favorite_only=favorite_only
     )
     return jsonify(result)
 
@@ -84,8 +86,14 @@ def get_detail_alt(manga_path):
 @manga_bp.route('/api/chapter/<path:chapter_path>')
 def get_chapter_images(chapter_path):
     """API：獲取漫畫章節圖片列表和導航信息"""
+    favorite_only = request.args.get('favorite_only', 'false').lower() == 'true'
+    
     images = manga_service.get_chapter_images(chapter_path)
-    navigation = manga_service.get_chapter_navigation(chapter_path)
+    navigation = manga_service.get_chapter_navigation(
+        chapter_path, 
+        favorite_only=favorite_only,
+        status_manager=status_manager
+    )
     
     return jsonify({
         'images': images,

@@ -194,3 +194,46 @@
         grid-template-columns: repeat(var(--grid-columns-desktop, 3), 1fr);
     }
 }
+
+/* 只顯示收藏章節切換按鈕 */
+.favorite-only-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-left: 15px;
+    user-select: none;
+}
+
+.favorite-only-toggle:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.favorite-only-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #ffd700;
+}
+
+.favorite-only-toggle span {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .favorite-only-toggle {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+        justify-content: center;
+    }
+}

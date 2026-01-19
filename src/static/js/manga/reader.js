@@ -16,9 +16,11 @@ class MangaReader {
         this.images = [];
         this.navigation = null;
         this.config = {};
+        this.favoriteOnly = false;  // 只顯示收藏章節
 
         this.initializeElements();
         this.loadConfig().then(() => {
+            this.loadFavoriteOnlySetting();
             this.bindEvents();
             this.loadImages();
         });
@@ -60,7 +62,11 @@ class MangaReader {
 
     async loadImages() {
         try {
-            const apiUrl = `${this.apiChapterEndpoint}${encodeURIComponent(this.chapterPath)}`;
+            let apiUrl = `${this.apiChapterEndpoint}${encodeURIComponent(this.chapterPath)}`;
+            if (this.favoriteOnly) {
+                apiUrl += `?favorite_only=true`;
+            }
+            
             const response = await fetch(apiUrl);
             if (!response.ok) throw new Error('章節不存在');
 
@@ -79,10 +85,12 @@ class MangaReader {
     }
 
     async loadFavoriteStatus() {
-        if (!this.navigation || !this.navigation.manga_name) return;
+        if (!this.navigation || !this.navigation.current_chapter) return;
 
         try {
-            const response = await fetch(`/manga/api/status/${encodeURIComponent(this.navigation.manga_name)}`);
+            // 使用章節路徑而不是漫畫名稱
+            const chapterPath = this.navigation.current_chapter.path;
+            const response = await fetch(`/manga/api/status/${encodeURIComponent(chapterPath)}`);
             if (response.ok) {
                 const data = await response.json();
                 this.updateFavoriteButton(data.status === 'favorite');
@@ -93,19 +101,21 @@ class MangaReader {
     }
 
     async toggleFavorite() {
-        if (!this.navigation || !this.navigation.manga_name) return;
+        if (!this.navigation || !this.navigation.current_chapter) return;
 
         this.favoriteBtn.classList.add('loading');
 
         try {
-            const response = await fetch(`/manga/api/status/${encodeURIComponent(this.navigation.manga_name)}`);
+            // 使用章節路徑而不是漫畫名稱
+            const chapterPath = this.navigation.current_chapter.path;
+            const response = await fetch(`/manga/api/status/${encodeURIComponent(chapterPath)}`);
             const currentData = await response.json();
             const isFavorite = currentData.status === 'favorite';
 
-            // 切換狀態：如果已收藏則改為未審核，否則設為收藏
-            const newStatus = isFavorite ? 'unreviewed' : 'favorite';
+            // 切換狀態：如果已收藏則改為已審核，否則設為收藏
+            const newStatus = isFavorite ? 'reviewed' : 'favorite';
 
-            const updateResponse = await fetch(`/manga/api/status/${encodeURIComponent(this.navigation.manga_name)}`, {
+            const updateResponse = await fetch(`/manga/api/status/${encodeURIComponent(chapterPath)}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -233,13 +243,25 @@ class MangaReader {
 
     gotoPrevChapter() {
         if (this.navigation && this.navigation.prev) {
-            window.location.href = `/manga/reader/${encodeURIComponent(this.navigation.prev.path)}`;
+            const url = `/manga/reader/${encodeURIComponent(this.navigation.prev.path)}`;
+            window.location.href = url;
         }
     }
 
     gotoNextChapter() {
         if (this.navigation && this.navigation.next) {
-            window.location.href = `/manga/reader/${encodeURIComponent(this.navigation.next.path)}`;
+            const url = `/manga/reader/${encodeURIComponent(this.navigation.next.path)}`;
+            window.location.href = url;
+        }
+    }
+
+    loadFavoriteOnlySetting() {
+        try {
+            const saved = localStorage.getItem('manga_favorite_only');
+            this.favoriteOnly = saved === 'true';
+        } catch (error) {
+            console.warn('無法載入設定:', error);
+            this.favoriteOnly = false;
         }
     }
 

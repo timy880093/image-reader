@@ -8,6 +8,7 @@ let currentPage = 1;
 let totalPages = 1;
 let isLoading = false;
 let currentFilter = 'all';  // 當前篩選狀態
+let favoriteOnly = false;  // 只顯示收藏章節
 
 const API_PREFIX = '/manga/api';
 const IMAGE_PREFIX = '/manga/image/';
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     config = await loadConfig();
     applyConfig();
     bindEvents();
+    loadFavoriteOnlySetting();
     loadMangas();
 });
 
@@ -51,6 +53,17 @@ function bindEvents() {
         });
     });
 
+    // 只顯示收藏章節切換事件
+    const favoriteOnlyCheckbox = document.getElementById('favoriteOnlyCheckbox');
+    if (favoriteOnlyCheckbox) {
+        favoriteOnlyCheckbox.addEventListener('change', (e) => {
+            favoriteOnly = e.target.checked;
+            saveFavoriteOnlySetting(favoriteOnly);
+            currentPage = 1;
+            loadMangas();
+        });
+    }
+
     // 滾動事件（無限滾動）
     window.addEventListener('scroll', throttle(handleScroll, 200));
 }
@@ -66,10 +79,13 @@ async function loadMangas(page = 1, append = false) {
     }
 
     try {
-        // 構建 API URL，包含狀態篩選
+        // 構建 API URL，包含狀態篩選和只顯示收藏章節
         let url = `${API_PREFIX}/list?page=${page}&per_page=6&skip_chapters=false`;
         if (currentFilter && currentFilter !== 'all') {
             url += `&status=${currentFilter}`;
+        }
+        if (favoriteOnly) {
+            url += `&favorite_only=true`;
         }
 
         const response = await fetch(url);
@@ -288,5 +304,89 @@ async function toggleCardFavorite(mangaPath, buttonElement) {
         alert('更新收藏狀態失敗，請稍後再試');
     } finally {
         buttonElement.classList.remove('loading');
+    }
+}
+
+// 保存只顯示收藏設定到 localStorage
+function saveFavoriteOnlySetting(value) {
+    try {
+        localStorage.setItem('manga_favorite_only', value ? 'true' : 'false');
+    } catch (error) {
+        console.warn('無法保存設定:', error);
+    }
+}
+
+// 載入只顯示收藏設定
+function loadFavoriteOnlySetting() {
+    try {
+        const saved = localStorage.getItem('manga_favorite_only');
+        favoriteOnly = saved === 'true';
+        const checkbox = document.getElementById('favoriteOnlyCheckbox');
+        if (checkbox) {
+            checkbox.checked = favoriteOnly;
+        }
+    } catch (error) {
+        console.warn('無法載入設定:', error);
+        favoriteOnly = false;
+    }
+}
+
+// 載入配置
+async function loadConfig() {
+    try {
+        const response = await fetch('/api/config');
+        if (response.ok) {
+            return await response.json();
+        }
+    } catch (error) {
+        console.warn('無法載入配置:', error);
+    }
+    return {};
+}
+
+// HTML 轉義
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 節流函數
+function throttle(func, wait) {
+    let timeout;
+    let previous = 0;
+    return function() {
+        const now = Date.now();
+        const remaining = wait - (now - previous);
+        const context = this;
+        const args = arguments;
+        if (remaining <= 0 || remaining > wait) {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+            previous = now;
+            func.apply(context, args);
+        } else if (!timeout) {
+            timeout = setTimeout(() => {
+                previous = Date.now();
+                timeout = null;
+                func.apply(context, args);
+            }, remaining);
+        }
+    };
+}
+
+// 顯示錯誤
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    } else {
+        console.error(message);
     }
 }

@@ -11,7 +11,7 @@ from core.utils import parsePath, formatPathForUrl
 class MangaService(BaseReader):
     """漫畫服務類別，繼承自 BaseReader"""
     
-    def get_manga_list(self, page=1, per_page=6, skip_chapters=False, status_filter=None, status_manager=None):
+    def get_manga_list(self, page=1, per_page=6, skip_chapters=False, status_filter=None, status_manager=None, favorite_only=False):
         """
         獲取所有漫畫列表
         
@@ -21,6 +21,7 @@ class MangaService(BaseReader):
             skip_chapters: 是否跳過章節信息載入（預設載入章節）
             status_filter: 狀態篩選 (favorite/unreviewed/reviewed)
             status_manager: 狀態管理器實例
+            favorite_only: 是否只顯示收藏的章節
             
         Returns:
             dict: 包含漫畫列表和分頁信息的字典
@@ -50,7 +51,7 @@ class MangaService(BaseReader):
             for manga_dir in page_dirs:
                 try:
                     # 使用緩存鍵
-                    cache_key = f"manga_{manga_dir}_{skip_chapters}"
+                    cache_key = f"manga_{manga_dir}_{skip_chapters}_{favorite_only}"
                     
                     if cache_key in self.cache:
                         manga_info = self.cache[cache_key]
@@ -63,7 +64,11 @@ class MangaService(BaseReader):
                             chapter_count = len(subdirs) if subdirs else 0
                         else:
                             # 完整模式：載入章節詳情
-                            chapters = self.get_chapters(manga_dir)
+                            chapters = self.get_chapters(
+                                manga_dir, 
+                                favorite_only=favorite_only,
+                                status_manager=status_manager
+                            )
                             chapter_count = len(chapters)
                         
                         cover_image = self.get_cover_image(manga_dir)
@@ -102,12 +107,14 @@ class MangaService(BaseReader):
             print(f"獲取漫畫列表時出錯: {e}")
             return self._empty_result(page, per_page)
     
-    def get_chapters(self, manga_path):
+    def get_chapters(self, manga_path, favorite_only=False, status_manager=None):
         """
         獲取漫畫的章節列表
         
         Args:
             manga_path: 漫畫目錄路徑
+            favorite_only: 是否只顯示收藏的章節
+            status_manager: 狀態管理器實例
             
         Returns:
             list: 章節列表
@@ -123,9 +130,17 @@ class MangaService(BaseReader):
             for chapter_dir in subdirs:
                 images = self.get_images_in_dir(chapter_dir)
                 if images:
+                    chapter_path = formatPathForUrl(chapter_dir.relative_to(self.root_path))
+                    
+                    # 如果啟用只顯示收藏，則檢查章節狀態
+                    if favorite_only and status_manager:
+                        chapter_status = status_manager.get_status('manga', chapter_path)
+                        if chapter_status != 'favorite':
+                            continue
+                    
                     chapters.append({
                         'name': chapter_dir.name,
-                        'path': formatPathForUrl(chapter_dir.relative_to(self.root_path)),
+                        'path': chapter_path,
                         'image_count': len(images)
                     })
         
@@ -154,12 +169,14 @@ class MangaService(BaseReader):
             print(f"[DEBUG] 圖片: {img}")
         return images
     
-    def get_chapter_navigation(self, chapter_path):
+    def get_chapter_navigation(self, chapter_path, favorite_only=False, status_manager=None):
         """
         獲取章節導航信息（上一話、下一話）
         
         Args:
             chapter_path: 章節路徑（相對路徑）
+            favorite_only: 是否只顯示收藏的章節
+            status_manager: 狀態管理器實例
             
         Returns:
             dict: 導航信息
@@ -176,9 +193,22 @@ class MangaService(BaseReader):
         if not all_chapters:
             return {'prev': None, 'next': None, 'manga_name': manga_name}
         
+        # 如果啟用只顯示收藏，則篩選收藏的章節
+        if favorite_only and status_manager:
+            favorite_chapters = []
+            for chapter in all_chapters:
+                chapter_status = status_manager.get_status('manga', chapter['path'])
+                if chapter_status == 'favorite':
+                    favorite_chapters.append(chapter)
+            
+            # 如果有收藏章節，使用收藏列表；否則使用全部章節
+            chapters_to_use = favorite_chapters if favorite_chapters else all_chapters
+        else:
+            chapters_to_use = all_chapters
+        
         # 找到當前章節的索引
         current_index = -1
-        for i, chapter in enumerate(all_chapters):
+        for i, chapter in enumerate(chapters_to_use):
             if parsePath(chapter['path']) == parsed_path:
                 current_index = i
                 break
@@ -187,15 +217,15 @@ class MangaService(BaseReader):
             return {'prev': None, 'next': None, 'manga_name': manga_name}
         
         # 計算上一話和下一話
-        prev_chapter = all_chapters[current_index - 1] if current_index > 0 else None
-        next_chapter = all_chapters[current_index + 1] if current_index < len(all_chapters) - 1 else None
+        prev_chapter = chapters_to_use[current_index - 1] if current_index > 0 else None
+        next_chapter = chapters_to_use[current_index + 1] if current_index < len(chapters_to_use) - 1 else None
         
         return {
             'prev': prev_chapter,
             'next': next_chapter,
             'manga_name': manga_name,
-            'current_chapter': all_chapters[current_index],
-            'total_chapters': len(all_chapters),
+            'current_chapter': chapters_to_use[current_index],
+            'total_chapters': len(chapters_to_use),
             'current_index': current_index + 1  # 顯示時從1開始
         }
     
