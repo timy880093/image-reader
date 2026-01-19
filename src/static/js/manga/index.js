@@ -216,7 +216,7 @@ async function openManga(mangaPath) {
 
 // 打開章節
 function openChapter(chapterPath) {
-    window.location.href = `${READER_PREFIX}${encodeURIComponent(chapterPath)}`;
+    window.open(`${READER_PREFIX}${encodeURIComponent(chapterPath)}`, '_blank');
 }
 
 // 搜尋功能

@@ -180,7 +180,7 @@ async function openWork(workPath) {
     if (!work) return;
 
     // Gallery 直接打開閱讀器（因為沒有章節概念）
-    window.location.href = `${READER_PREFIX}${encodeURIComponent(workPath)}`;
+    window.open(`${READER_PREFIX}${encodeURIComponent(workPath)}`, '_blank');
 }
 
 // 搜尋功能 - 呼叫 API 搜尋全部資料
