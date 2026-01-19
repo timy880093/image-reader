@@ -159,11 +159,11 @@ class MangaReader {
 
         this.chapterMenuItems.innerHTML = menuHtml;
 
-        // 滾動到當前章節
+        // 當前章節置中
         setTimeout(() => {
             const currentItem = this.chapterMenuItems.querySelector('.current');
             if (currentItem) {
-                currentItem.scrollIntoView({ block: 'center' });
+                currentItem.scrollIntoView({ block: 'center', behavior: 'smooth' });
             }
         }, 100);
     }
