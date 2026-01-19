@@ -17,6 +17,7 @@ class MangaReader {
         this.navigation = null;
         this.config = {};
         this.favoriteOnly = false;  // 只顯示收藏章節
+        this.allChapters = [];  // 所有章節列表
 
         this.initializeElements();
         this.loadConfig().then(() => {
@@ -48,6 +49,8 @@ class MangaReader {
         this.nextChapterBtn = document.getElementById('nextChapterBtn');
         this.favoriteBtn = document.getElementById('favoriteBtn');
         this.favoriteStar = document.getElementById('favoriteStar');
+        this.chapterMenu = document.getElementById('chapterMenu');
+        this.chapterMenuItems = document.getElementById('chapterMenuItems');
     }
 
     bindEvents() {
@@ -57,6 +60,13 @@ class MangaReader {
         // 滾動事件來更新頁碼顯示
         this.imageContainer.addEventListener('scroll', () => {
             this.updatePageInfo();
+        });
+
+        // 點擊外部關閉選單
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.chapter-menu-container')) {
+                this.closeChapterMenu();
+            }
         });
     }
 
@@ -78,10 +88,102 @@ class MangaReader {
             this.updateNavigationButtons();
             this.displayAllImages();
             this.loadFavoriteStatus();
+            this.loadAllChapters();
 
         } catch (error) {
             this.showError();
         }
+    }
+
+    async loadAllChapters() {
+        if (!this.navigation || !this.navigation.manga_name) return;
+
+        try {
+            // 獲取漫畫的所有章節
+            const mangaPath = this.chapterPath.split('/').slice(0, -1).join('/');
+            let apiUrl = `/manga/api/detail/${encodeURIComponent(mangaPath)}`;
+            
+            const response = await fetch(apiUrl);
+            if (!response.ok) return;
+
+            const data = await response.json();
+            let chapters = data.chapters || [];
+
+            // 如果啟用只顯示收藏，則篩選收藏的章節
+            if (this.favoriteOnly) {
+                const favoriteChapters = [];
+                for (const chapter of chapters) {
+                    try {
+                        const statusResponse = await fetch(`/manga/api/status/${encodeURIComponent(chapter.path)}`);
+                        if (statusResponse.ok) {
+                            const statusData = await statusResponse.json();
+                            if (statusData.status === 'favorite') {
+                                favoriteChapters.push(chapter);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('無法檢查章節狀態:', e);
+                    }
+                }
+                chapters = favoriteChapters.length > 0 ? favoriteChapters : chapters;
+            }
+
+            this.allChapters = chapters;
+            this.renderChapterMenu();
+
+        } catch (error) {
+            console.warn('無法載入章節列表:', error);
+        }
+    }
+
+    renderChapterMenu() {
+        if (!this.allChapters || this.allChapters.length === 0) {
+            this.chapterMenuItems.innerHTML = '<div style="padding: 15px; text-align: center; color: #999;">無可用章節</div>';
+            return;
+        }
+
+        const currentPath = this.chapterPath;
+        
+        const menuHtml = this.allChapters.map(chapter => {
+            const isCurrent = chapter.path === currentPath;
+            const currentClass = isCurrent ? 'current' : '';
+            const currentBadge = isCurrent ? '<span class="chapter-menu-item-badge">● 當前</span>' : '';
+            
+            return `
+                <div class="chapter-menu-item ${currentClass}" onclick="window.reader.gotoChapter('${chapter.path}')">
+                    <span class="chapter-menu-item-name">${this.escapeHtml(chapter.name)}</span>
+                    ${currentBadge}
+                </div>
+            `;
+        }).join('');
+
+        this.chapterMenuItems.innerHTML = menuHtml;
+
+        // 滾動到當前章節
+        setTimeout(() => {
+            const currentItem = this.chapterMenuItems.querySelector('.current');
+            if (currentItem) {
+                currentItem.scrollIntoView({ block: 'center' });
+            }
+        }, 100);
+    }
+
+    toggleChapterMenu() {
+        this.chapterMenu.classList.toggle('show');
+    }
+
+    closeChapterMenu() {
+        this.chapterMenu.classList.remove('show');
+    }
+
+    gotoChapter(chapterPath) {
+        window.location.href = `/manga/reader/${encodeURIComponent(chapterPath)}`;
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     async loadFavoriteStatus() {
@@ -329,6 +431,12 @@ function retryLoad() {
 function toggleFavorite() {
     if (window.reader) {
         window.reader.toggleFavorite();
+    }
+}
+
+function toggleChapterMenu() {
+    if (window.reader) {
+        window.reader.toggleChapterMenu();
     }
 }
 

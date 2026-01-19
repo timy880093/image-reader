@@ -128,9 +128,22 @@ function displayMangas(mangas) {
     noResults.style.display = 'none';
 
     const mangaCards = mangas.map(manga => {
-        const coverImage = manga.cover_image ?
-            `<img src="${IMAGE_PREFIX}${encodeURIComponent(manga.cover_image)}" alt="${escapeHtml(manga.name)}" onerror="this.parentElement.innerHTML='<div class=&quot;manga-cover-placeholder-with-title&quot;>📚</div>'">` :
-            '<div class="manga-cover-placeholder-with-title">📚</div>';
+        // 封面圖片處理
+        let coverImageHtml;
+        if (manga.cover_image) {
+            const imgTag = `<img src="${IMAGE_PREFIX}${encodeURIComponent(manga.cover_image)}" alt="${escapeHtml(manga.name)}" onerror="this.parentElement.innerHTML='<div class=&quot;manga-cover-placeholder-with-title&quot;>📚</div>'">`;
+            
+            if (manga.url_link) {
+                // 有連結：可點擊，開新分頁
+                coverImageHtml = `<a href="${escapeHtml(manga.url_link)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="manga-cover-link">${imgTag}</a>`;
+            } else {
+                // 無連結：不可點擊
+                coverImageHtml = imgTag;
+            }
+        } else {
+            // 無封面圖片
+            coverImageHtml = '<div class="manga-cover-placeholder-with-title">📚</div>';
+        }
 
         // 收藏按鈕
         const isFavorite = manga.status === 'favorite';
@@ -156,7 +169,7 @@ function displayMangas(mangas) {
         return `
             <div class="manga-card" onclick="openManga('${manga.path}')">
                 <div class="manga-cover">
-                    ${coverImage}
+                    ${coverImageHtml}
                     <button class="manga-favorite-btn" 
                             onclick="event.stopPropagation(); toggleCardFavorite('${escapeHtml(manga.path)}', this)"
                             title="${favoriteTitle}"

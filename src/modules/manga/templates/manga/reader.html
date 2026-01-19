@@ -35,6 +35,7 @@
         left: 0;
         right: 0;
         z-index: 1000;
+        padding-left: 90px;  /* 預留 Home 按鈕空間 */
     }
     
     .toolbar-left {
@@ -64,10 +65,120 @@
         cursor: pointer;
         font-size: 14px;
         transition: background-color 0.3s;
+        position: relative;
     }
     
     .back-btn:hover {
         background: #5a6fd8;
+    }
+    
+    .chapter-menu-container {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .chapter-menu-btn {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 20px;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .chapter-menu-btn:hover {
+        background: #5a6fd8;
+    }
+    
+    .chapter-menu-btn::after {
+        content: none;
+    }
+    
+    .chapter-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 5px;
+        background: rgba(0, 0, 0, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        min-width: 250px;
+        max-height: 400px;
+        overflow-y: auto;
+        display: none;
+        z-index: 2000;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+    
+    .chapter-menu.show {
+        display: block;
+    }
+    
+    .chapter-menu-header {
+        padding: 10px 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        font-weight: bold;
+        font-size: 14px;
+        color: #667eea;
+        position: sticky;
+        top: 0;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 1;
+    }
+    
+    .chapter-menu-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .chapter-menu-item:hover {
+        background: rgba(102, 126, 234, 0.3);
+    }
+    
+    .chapter-menu-item.current {
+        background: rgba(102, 126, 234, 0.5);
+        font-weight: bold;
+    }
+    
+    .chapter-menu-item-name {
+        flex: 1;
+        font-size: 14px;
+    }
+    
+    .chapter-menu-item-badge {
+        font-size: 12px;
+        color: #ffd700;
+        margin-left: 10px;
+    }
+    
+    .chapter-menu::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .chapter-menu::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+    
+    .chapter-menu::-webkit-scrollbar-thumb {
+        background: rgba(102, 126, 234, 0.6);
+        border-radius: 4px;
+    }
+    
+    .chapter-menu::-webkit-scrollbar-thumb:hover {
+        background: rgba(102, 126, 234, 0.8);
     }
     
     .nav-chapter-btn {
@@ -226,6 +337,7 @@
     @media (max-width: 768px) {
         .toolbar {
             padding: 10px;
+            padding-left: 70px;  /* 移動版預留 Home 按鈕空間 */
         }
         
         .chapter-info {
@@ -242,6 +354,12 @@
             width: 50px;
             height: 50px;
         }
+        
+        .chapter-menu-btn {
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
+        }
     }
 </style>
 {% endblock %}
@@ -250,7 +368,15 @@
 <div class="reader-container">
     <div id="toolbar" class="toolbar">
         <div class="toolbar-left">
-            <button class="back-btn" onclick="goToIndex()">← 回到目錄</button>
+            <div class="chapter-menu-container">
+                <button class="chapter-menu-btn" id="chapterMenuBtn" onclick="toggleChapterMenu()" title="章節選單">
+                    📚
+                </button>
+                <div class="chapter-menu" id="chapterMenu">
+                    <div class="chapter-menu-header">選擇章節</div>
+                    <div id="chapterMenuItems"></div>
+                </div>
+            </div>
             <div id="chapterInfo" class="chapter-info">載入中...</div>
         </div>
         <div class="toolbar-center">

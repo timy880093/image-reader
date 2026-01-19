@@ -72,13 +72,15 @@ class MangaService(BaseReader):
                             chapter_count = len(chapters)
                         
                         cover_image = self.get_cover_image(manga_dir)
+                        url_link = self.get_url_link(manga_dir)
                         
                         manga_info = {
                             'name': manga_dir.name,
                             'path': formatPathForUrl(manga_dir.relative_to(self.root_path)),
                             'chapters': chapters,
                             'chapter_count': chapter_count,
-                            'cover_image': cover_image
+                            'cover_image': cover_image,
+                            'url_link': url_link
                         }
                         
                         # 緩存結果（最多緩存100個）
@@ -228,6 +230,43 @@ class MangaService(BaseReader):
             'total_chapters': len(chapters_to_use),
             'current_index': current_index + 1  # 顯示時從1開始
         }
+    
+    def get_url_link(self, manga_path):
+        """
+        獲取漫畫資料夾中的網際網路捷徑連結
+        
+        Args:
+            manga_path: 漫畫目錄路徑
+            
+        Returns:
+            str: URL 連結，如果沒有則返回 None
+        """
+        manga_path = Path(manga_path)
+        
+        try:
+            # 查找 .url 文件
+            url_files = list(manga_path.glob('*.url'))
+            
+            if url_files:
+                # 讀取第一個 .url 文件
+                url_file = url_files[0]
+                with open(url_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    
+                # 解析 .url 文件格式
+                # 格式通常是：
+                # [InternetShortcut]
+                # URL=https://example.com
+                for line in content.split('\n'):
+                    line = line.strip()
+                    if line.startswith('URL='):
+                        url = line[4:].strip()
+                        return url
+                        
+        except Exception as e:
+            print(f"讀取 URL 文件時出錯 ({manga_path.name}): {e}")
+        
+        return None
     
     def _empty_result(self, page, per_page):
         """返回空結果"""
