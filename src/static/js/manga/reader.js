@@ -230,7 +230,25 @@ class MangaReader {
             case 'End':
                 this.scrollToBottom();
                 break;
+            case 'PageUp':
+                e.preventDefault();
+                this.scrollPageUp();
+                break;
+            case 'PageDown':
+                e.preventDefault();
+                this.scrollPageDown();
+                break;
         }
+    }
+
+    scrollPageUp() {
+        const scrollAmount = this.imageContainer.clientHeight * 0.9;
+        this.imageContainer.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+    }
+
+    scrollPageDown() {
+        const scrollAmount = this.imageContainer.clientHeight * 0.9;
+        this.imageContainer.scrollBy({ top: scrollAmount, behavior: 'smooth' });
     }
 
     scrollToTop() {
