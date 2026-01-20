@@ -18,10 +18,10 @@ class MangaReader {
         this.config = {};
         this.favoriteOnly = false;  // 只顯示收藏章節
         this.allChapters = [];  // 所有章節列表
-        this.maxImageHeight = 0;  // 最大圖片高度
+        this.maxImageWidth = 0;  // 最大圖片寬度
 
         this.initializeElements();
-        this.calculateMaxImageHeight();
+        this.calculateMaxImageWidth();
         this.loadConfig().then(() => {
             this.loadFavoriteOnlySetting();
             this.bindEvents();
@@ -29,18 +29,12 @@ class MangaReader {
         });
     }
 
-    calculateMaxImageHeight() {
-        // 計算可視區域的高度（扣除工具列）
-        const toolbar = document.querySelector('.toolbar');
-        const toolbarHeight = toolbar ? toolbar.offsetHeight : 60;
-        const viewportHeight = window.innerHeight;
+    calculateMaxImageWidth() {
+        // 計算最大圖片寬度為視窗寬度的 50%
+        const viewportWidth = window.innerWidth;
+        this.maxImageWidth = viewportWidth * 0.5;
         
-        // 可用高度 = 視窗高度 - 工具列高度
-        // 因為一張圖片包含2張漫畫圖，所以最大高度設為可用高度的2倍
-        // 這樣每張漫畫圖的高度正好等於一個視窗高度
-        this.maxImageHeight = (viewportHeight - toolbarHeight) * 2;
-        
-        console.log(`計算最大圖片高度: ${this.maxImageHeight}px ((視窗: ${viewportHeight}px - 工具列: ${toolbarHeight}px) × 2)`);
+        console.log(`計算最大圖片寬度: ${this.maxImageWidth}px (視窗寬度: ${viewportWidth}px × 50%)`);
     }
 
     async loadConfig() {
@@ -85,11 +79,57 @@ class MangaReader {
             }
         });
 
-        // 視窗大小改變時重新計算最大圖片高度
+        // 視窗大小改變時重新計算最大圖片寬度並保持位置
+        let resizeTimer;
         window.addEventListener('resize', () => {
-            this.calculateMaxImageHeight();
-            this.applyMaxHeightToImages();
+            // 清除之前的計時器
+            clearTimeout(resizeTimer);
+            
+            // 保存當前可見的圖片索引
+            const currentImageIndex = this.getCurrentVisibleImageIndex();
+            
+            // 立即更新寬度（不等待）
+            this.calculateMaxImageWidth();
+            this.applyMaxWidthToImages();
+            
+            // 使用 requestAnimationFrame 確保在下一幀恢復位置
+            requestAnimationFrame(() => {
+                this.scrollToImageIndex(currentImageIndex);
+            });
         });
+    }
+
+    getCurrentVisibleImageIndex() {
+        // 獲取當前視窗中心點對應的圖片索引
+        const images = this.imagesContainer.querySelectorAll('.manga-image');
+        if (images.length === 0) return 0;
+
+        const containerRect = this.imageContainer.getBoundingClientRect();
+        const centerY = containerRect.top + containerRect.height / 2;
+        
+        for (let i = 0; i < images.length; i++) {
+            const imgRect = images[i].getBoundingClientRect();
+            // 如果圖片包含視窗中心點
+            if (imgRect.top <= centerY && imgRect.bottom >= centerY) {
+                return i;
+            }
+        }
+        
+        return 0;
+    }
+
+    scrollToImageIndex(index) {
+        // 滾動到指定索引的圖片，使其頂部對齊視窗頂部
+        const images = this.imagesContainer.querySelectorAll('.manga-image');
+        if (index >= 0 && index < images.length) {
+            const targetImage = images[index];
+            const offsetTop = targetImage.offsetTop;
+            const toolbar = document.querySelector('.toolbar');
+            const toolbarHeight = toolbar ? toolbar.offsetHeight : 60;
+            
+            // 直接設置 scrollTop，不使用 scrollIntoView 避免動畫
+            this.imageContainer.scrollTop = offsetTop - toolbarHeight;
+        }
     }
 
     async loadImages() {
@@ -308,9 +348,12 @@ class MangaReader {
             img.dataset.index = index;
             img.alt = `第 ${index + 1} 頁`;
 
-            // 設置最大高度
-            if (this.maxImageHeight > 0) {
-                img.style.maxHeight = `${this.maxImageHeight}px`;
+            // 設置最大寬度
+            if (this.maxImageWidth > 0) {
+                img.style.maxWidth = `${this.maxImageWidth}px`;
+                img.style.width = 'auto';
+                img.style.height = 'auto';
+                img.style.objectFit = 'contain';
             }
 
             // 添加載入錯誤處理
@@ -325,12 +368,15 @@ class MangaReader {
         });
     }
 
-    applyMaxHeightToImages() {
-        // 對已載入的圖片應用最大高度
+    applyMaxWidthToImages() {
+        // 對已載入的圖片應用最大寬度
         const images = this.imagesContainer.querySelectorAll('.manga-image');
         images.forEach(img => {
-            if (this.maxImageHeight > 0) {
-                img.style.maxHeight = `${this.maxImageHeight}px`;
+            if (this.maxImageWidth > 0) {
+                img.style.maxWidth = `${this.maxImageWidth}px`;
+                img.style.width = 'auto';
+                img.style.height = 'auto';
+                img.style.objectFit = 'contain';
             }
         });
     }
