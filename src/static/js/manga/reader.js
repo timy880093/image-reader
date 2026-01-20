@@ -18,13 +18,29 @@ class MangaReader {
         this.config = {};
         this.favoriteOnly = false;  // 只顯示收藏章節
         this.allChapters = [];  // 所有章節列表
+        this.maxImageHeight = 0;  // 最大圖片高度
 
         this.initializeElements();
+        this.calculateMaxImageHeight();
         this.loadConfig().then(() => {
             this.loadFavoriteOnlySetting();
             this.bindEvents();
             this.loadImages();
         });
+    }
+
+    calculateMaxImageHeight() {
+        // 計算可視區域的高度（扣除工具列）
+        const toolbar = document.querySelector('.toolbar');
+        const toolbarHeight = toolbar ? toolbar.offsetHeight : 60;
+        const viewportHeight = window.innerHeight;
+        
+        // 可用高度 = 視窗高度 - 工具列高度
+        // 因為一張圖片包含2張漫畫圖，所以最大高度設為可用高度的2倍
+        // 這樣每張漫畫圖的高度正好等於一個視窗高度
+        this.maxImageHeight = (viewportHeight - toolbarHeight) * 2;
+        
+        console.log(`計算最大圖片高度: ${this.maxImageHeight}px ((視窗: ${viewportHeight}px - 工具列: ${toolbarHeight}px) × 2)`);
     }
 
     async loadConfig() {
@@ -68,6 +84,104 @@ class MangaReader {
                 this.closeChapterMenu();
             }
         });
+
+        // 視窗大小改變時重新計算最大圖片高度並保持閱讀位置
+        window.addEventListener('resize', () => {
+            this.handleResize();
+        });
+    }
+
+    handleResize() {
+        // 保存當前滾動位置的相對信息
+        const scrollInfo = this.getCurrentScrollInfo();
+        
+        // 重新計算最大圖片高度
+        this.calculateMaxImageHeight();
+        this.applyMaxHeightToImages();
+        
+        // 等待圖片重新渲染後恢復位置
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                this.restoreScrollPosition(scrollInfo);
+            }, 100);
+        });
+    }
+
+    getCurrentScrollInfo() {
+        // 獲取當前滾動位置的詳細信息
+        const images = this.imagesContainer.querySelectorAll('.manga-image');
+        if (images.length === 0) return null;
+
+        const containerRect = this.imageContainer.getBoundingClientRect();
+        const containerTop = this.imageContainer.scrollTop;
+        
+        // 找到當前可見的圖片
+        for (let i = 0; i < images.length; i++) {
+            const imgRect = images[i].getBoundingClientRect();
+            const imgOffsetTop = images[i].offsetTop;
+            
+            // 如果圖片與視窗頂部有交集
+            if (imgRect.bottom > containerRect.top) {
+                // 計算圖片內部的相對位置（0-1之間）
+                const imgScrolledAmount = containerTop - imgOffsetTop;
+                const imgHeight = images[i].offsetHeight;
+                const relativePosition = imgHeight > 0 ? imgScrolledAmount / imgHeight : 0;
+                
+                return {
+                    imageIndex: i,
+                    relativePosition: relativePosition,
+                    imagePath: images[i].src
+                };
+            }
+        }
+        
+        return { imageIndex: 0, relativePosition: 0 };
+    }
+
+    restoreScrollPosition(scrollInfo) {
+        if (!scrollInfo) return;
+        
+        const images = this.imagesContainer.querySelectorAll('.manga-image');
+        if (scrollInfo.imageIndex >= 0 && scrollInfo.imageIndex < images.length) {
+            const targetImage = images[scrollInfo.imageIndex];
+            const imgOffsetTop = targetImage.offsetTop;
+            const imgHeight = targetImage.offsetHeight;
+            
+            // 根據相對位置計算新的滾動位置
+            const newScrollTop = imgOffsetTop + (imgHeight * scrollInfo.relativePosition);
+            
+            this.imageContainer.scrollTop = newScrollTop;
+            
+            console.log(`恢復位置: 圖片 ${scrollInfo.imageIndex}, 相對位置 ${scrollInfo.relativePosition.toFixed(2)}, 滾動至 ${newScrollTop.toFixed(0)}px`);
+        }
+    }
+
+    getCurrentVisibleImageIndex() {
+        // 獲取當前可見的圖片索引
+        const images = this.imagesContainer.querySelectorAll('.manga-image');
+        if (images.length === 0) return -1;
+
+        const containerRect = this.imageContainer.getBoundingClientRect();
+        
+        for (let i = 0; i < images.length; i++) {
+            const imgRect = images[i].getBoundingClientRect();
+            // 如果圖片的中心點在可視區域內
+            if (imgRect.top <= containerRect.top + containerRect.height / 2 &&
+                imgRect.bottom >= containerRect.top + containerRect.height / 2) {
+                return i;
+            }
+        }
+        
+        return 0;
+    }
+
+    scrollToImage(imageIndex) {
+        // 滾動到指定的圖片
+        const images = this.imagesContainer.querySelectorAll('.manga-image');
+        if (imageIndex >= 0 && imageIndex < images.length) {
+            const targetImage = images[imageIndex];
+            targetImage.scrollIntoView({ block: 'start', behavior: 'auto' });
+        }
     }
 
     async loadImages() {
@@ -286,6 +400,11 @@ class MangaReader {
             img.dataset.index = index;
             img.alt = `第 ${index + 1} 頁`;
 
+            // 設置最大高度
+            if (this.maxImageHeight > 0) {
+                img.style.maxHeight = `${this.maxImageHeight}px`;
+            }
+
             // 添加載入錯誤處理
             img.onerror = () => {
                 img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><text x="50%" y="50%" text-anchor="middle" fill="%23999">載入失敗</text></svg>';
@@ -295,6 +414,16 @@ class MangaReader {
             img.src = `${this.imagePrefix}${encodeURIComponent(imagePath)}`;
 
             this.imagesContainer.appendChild(img);
+        });
+    }
+
+    applyMaxHeightToImages() {
+        // 對已載入的圖片應用最大高度
+        const images = this.imagesContainer.querySelectorAll('.manga-image');
+        images.forEach(img => {
+            if (this.maxImageHeight > 0) {
+                img.style.maxHeight = `${this.maxImageHeight}px`;
+            }
         });
     }
 
