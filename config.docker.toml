@@ -1,0 +1,57 @@
+# Docker 環境配置文件
+# 此配置用於 Docker 容器內部
+
+[server]
+host = "0.0.0.0"  # Docker 需要監聽所有介面
+port = 5000
+debug = false  # 生產環境建議關閉
+secret_key = "your-secret-key-here-please-change-this"
+
+[manga]
+# Docker 容器內的路徑（不需修改）
+root_path = "/manga"
+gallery_root_path = "/gallery"
+status_file_path = "/app/data/status.json"
+
+# 支援的圖片格式
+supported_formats = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tiff"]
+
+[gallery]
+per_page = 6
+search_debounce_ms = 300
+skip_chapters_on_list = true
+default_filter = ""
+
+[reader]
+theme = "dark"
+auto_hide_toolbar = true
+toolbar_hide_delay = 3000
+default_zoom = 1.0
+max_zoom = 5.0
+min_zoom = 0.5
+zoom_step = 0.1
+click_to_turn = true
+keyboard_navigation = true
+show_page_number = true
+show_chapter_info = true
+allow_wheel_zoom = false
+
+[ui]
+language = "zh-TW"
+responsive_design = true
+grid_columns_desktop = 3
+grid_columns_tablet = 2
+grid_columns_mobile = 1
+max_chapters_display = 5
+search_placeholder = "搜尋漫畫名稱..."
+search_delay = 300
+
+[performance]
+image_cache = true
+cache_size_mb = 100
+preload_pages = 2
+lazy_loading = true
+image_quality = 85
+resize_large_images = false
+max_image_width = 1920
+max_image_height = 1080

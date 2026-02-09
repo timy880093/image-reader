@@ -1,6 +1,13 @@
 # 本地漫畫閱讀器
 
-一個簡單且功能豐富的本地漫畫閱讀網站，使用 Flask 構建，支援在本地運行。
+一個簡單且功能豐富的本地漫畫閱讀網站，使用 Flask 構建，支援本地運行和 Docker 部署。
+
+## 📖 快速導航
+
+- **新用戶？** → 查看 [Docker 快速啟動](#-docker-啟動推薦) 或 [設定檢查清單](SETUP_CHECKLIST.md)
+- **Docker 部署？** → 查看 [Docker 快速指南](DOCKER_QUICKSTART.md)
+- **本地開發？** → 查看 [本地啟動](#-本地啟動)
+- **需要幫助？** → 查看 [故障排除](#故障排除)
 
 ## 專案結構
 
@@ -51,16 +58,81 @@ manga-reader/
 
 ## 系統需求
 
+**本地運行：**
 - Python 3.7+
 - 現代網頁瀏覽器（Chrome、Firefox、Edge、Safari）
 
+**Docker 運行：**
+- Docker 和 Docker Compose
+- 現代網頁瀏覽器
+
+## 快速開始
+
+### 🐳 Docker 啟動（推薦）
+
+最簡單的啟動方式，無需安裝 Python 環境。
+
+#### 方式 A：使用啟動腳本（最快）
+
+**Windows PowerShell:**
+```powershell
+.\docker-start.ps1
+```
+
+腳本會自動檢查環境並引導你完成配置。
+
+#### 方式 B：手動啟動
+
+**1. 準備配置文件**
+```powershell
+# Windows PowerShell
+Copy-Item config.docker.toml config.toml
+
+# Linux/Mac
+cp config.docker.toml config.toml
+```
+
+編輯 `config.toml`，修改 `secret_key`（必須）
+
+**2. 設定漫畫路徑**
+
+編輯 `docker-compose.yml`，修改 volumes 部分：
+
+```yaml
+volumes:
+  # Windows 範例（修改冒號左側為你的路徑）
+  - E:/test/manga:/manga:ro
+  - E:/test/gallery:/gallery:ro
+  
+  # Linux/Mac 範例
+  - /home/user/manga:/manga:ro
+  - /home/user/gallery:/gallery:ro
+```
+
+**3. 啟動服務**
+```powershell
+docker-compose up -d
+```
+
+**4. 開啟瀏覽器**
+
+訪問 http://localhost:5000
+
+**停止服務**
+```powershell
+docker-compose down
+```
+
+### 💻 本地啟動
+
+適合開發或不想使用 Docker 的情況。
+
 ## 安裝和使用
 
-### 方式一：使用啟動腳本（推薦）
+#### 方式 A：使用啟動腳本（推薦）
 
 **Windows:**
-```bash
-# 雙擊 start.bat 或在命令列執行
+```powershell
 .\start.bat
 ```
 
@@ -70,17 +142,15 @@ chmod +x start.sh
 ./start.sh
 ```
 
-### 方式二：手動啟動
+#### 方式 B：手動啟動
 
-```bash
+```powershell
 # 1. 建立虛擬環境
 python -m venv venv
 
 # 2. 啟用虛擬環境
-# Windows:
-.\venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
+.\venv\Scripts\activate  # Windows PowerShell
+# source venv/bin/activate  # Linux/Mac
 
 # 3. 安裝依賴
 pip install -r requirements.txt
@@ -94,8 +164,8 @@ python app.py
 
 **首次使用請先配置：**
 
-1. 複製 `config.toml.example` 為 `config.toml`
-   ```bash
+1. 複製配置範本
+   ```powershell
    # Windows PowerShell
    Copy-Item config.toml.example config.toml
    
@@ -103,22 +173,73 @@ python app.py
    cp config.toml.example config.toml
    ```
 
-2. 編輯 `config.toml` 設定你的路徑和密鑰：
+2. 編輯 `config.toml` 設定路徑和密鑰：
 
    ```toml
    [server]
-   secret_key = "your-unique-secret-key-here"  # 請更改為唯一密鑰
+   secret_key = "your-unique-secret-key-here"  # 請更改（必須）
    
    [manga]
-   root_path = "E:/test/manga"                # 你的漫畫根目錄
-   gallery_root_path = "E:/test/pixiv"        # 你的 Gallery 作品目錄
+   root_path = "E:/test/manga"                # 漫畫目錄
+   gallery_root_path = "E:/test/gallery"      # Gallery 目錄
    ```
 
-> ⚠️ **注意**：`config.toml` 包含本地路徑和密鑰，已加入 `.gitignore`，不會被推送到 Git。
+> ⚠️ **安全提醒**：`config.toml` 包含敏感資訊，已加入 `.gitignore`，不會被推送到 Git。
 
 ### 開啟瀏覽器
 
-訪問 http://localhost:5000 開始使用
+訪問 http://localhost:5000
+
+## Docker 部署說明
+
+### 配置參數對照
+
+| 配置項 | 本地路徑 | Docker 容器內路徑 | 說明 |
+|--------|----------|-------------------|------|
+| 漫畫目錄 | 你的本地路徑 | `/manga` | 在 docker-compose.yml 設定 |
+| Gallery 目錄 | 你的本地路徑 | `/gallery` | 在 docker-compose.yml 設定 |
+| 配置文件 | `./config.toml` | `/app/config.toml` | 使用 config.docker.toml 範本 |
+| 數據目錄 | `./data` | `/app/data` | 自動創建 |
+
+### 需要修改的文件
+
+**1. config.toml（必須）**
+- 複製 `config.docker.toml` 為 `config.toml`
+- 修改 `secret_key` 為隨機字串
+
+**2. docker-compose.yml（必須）**
+- 修改 volumes 中的本地路徑（冒號左側）
+- Windows: `E:/test/manga:/manga:ro`
+- Linux/Mac: `/home/user/manga:/manga:ro`
+
+### Docker 常用命令
+
+```powershell
+# 啟動服務（背景運行）
+docker-compose up -d
+
+# 查看日誌
+docker-compose logs -f
+
+# 停止服務
+docker-compose down
+
+# 重新構建並啟動
+docker-compose up -d --build
+
+# 查看運行狀態
+docker-compose ps
+
+# 重啟服務
+docker-compose restart
+```
+
+### 快速參考
+
+| 啟動方式 | 優點 | 適用場景 |
+|---------|------|---------|
+| **Docker** | 無需 Python 環境、一鍵啟動 | 生產環境、快速部署 |
+| **本地運行** | 方便開發調試 | 開發環境、功能測試 |
 
 ## 目錄結構要求
 

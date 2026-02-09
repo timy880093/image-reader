@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  manga-reader:
+    build: .
+    container_name: manga-reader
+    ports:
+      - "5000:5000"
+    volumes:
+      # Windows 範例
+      # - E:/test/manga:/manga:ro
+      # - E:/test/gallery:/gallery:ro
+      
+      # Linux/Mac 範例
+      # - /home/user/manga:/manga:ro
+      # - /home/user/gallery:/gallery:ro
+      
+      # 配置和數據（不需修改）
+      - ./config.toml:/app/config.toml:ro
+      - ./data:/app/data
+    environment:
+      - TZ=Asia/Taipei
+    restart: unless-stopped

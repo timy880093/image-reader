@@ -44,3 +44,6 @@ data/
 
 # Config (keep local configuration private)
 config.toml
+
+# Docker
+docker-compose.override.yml

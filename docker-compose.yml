@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  manga-reader:
+    build: .
+    container_name: manga-reader
+    ports:
+      - "5000:5000"
+    volumes:
+      # 掛載漫畫目錄（請修改冒號左側為你的本地路徑）
+      - /path/to/your/manga:/manga:ro
+      # 掛載 Gallery 目錄（請修改冒號左側為你的本地路徑）
+      - /path/to/your/gallery:/gallery:ro
+      # 掛載配置文件
+      - ./config.toml:/app/config.toml:ro
+      # 掛載數據目錄（保存收藏等狀態）
+      - ./data:/app/data
+    environment:
+      - TZ=Asia/Taipei
+    restart: unless-stopped

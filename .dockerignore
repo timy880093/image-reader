@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# 測試和文檔
+tests/
+docs/
+*.md
+!README.md
+
+# 配置文件（使用 example 版本）
+config.toml
+
+# 數據文件
+data/
+
+# 其他
+.DS_Store
+*.log
+prompt/
+.kiro/
+start.bat
+start.sh
+manage_gallery_tags.ps1
+test_*.py
+AGENTS.md
+CLAUDE.md
+GEMINI.md

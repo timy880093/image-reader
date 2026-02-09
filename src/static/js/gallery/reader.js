@@ -137,9 +137,15 @@ class GalleryReader {
             const chapterName = this.navigation.current_chapter.name;
             const mangaName = this.navigation.manga_name;
 
-            this.chapterInfoElement.textContent = `${mangaName} - ${chapterName}`;
+            const displayText = `${mangaName} - ${chapterName}`;
+            this.chapterInfoElement.textContent = displayText;
+            // 更新頁面標題
+            document.title = displayText;
         } else {
-            this.chapterInfoElement.textContent = this.getChapterName();
+            const chapterName = this.getChapterName();
+            this.chapterInfoElement.textContent = chapterName;
+            // 更新頁面標題
+            document.title = chapterName;
         }
 
         this.pageInfoElement.textContent = `共 ${this.totalImages} 張圖片`;

@@ -220,18 +220,29 @@ class MangaReader {
         }).join('');
 
         this.chapterMenuItems.innerHTML = menuHtml;
+    }
 
-        // 當前章節置中
-        setTimeout(() => {
-            const currentItem = this.chapterMenuItems.querySelector('.current');
-            if (currentItem) {
+    scrollToCurrentChapter() {
+        // 滾動到當前章節並置中
+        const currentItem = this.chapterMenuItems.querySelector('.current');
+        if (currentItem) {
+            // 使用 requestAnimationFrame 確保 DOM 已完全渲染
+            requestAnimationFrame(() => {
                 currentItem.scrollIntoView({ block: 'center', behavior: 'smooth' });
-            }
-        }, 100);
+            });
+        }
     }
 
     toggleChapterMenu() {
-        this.chapterMenu.classList.toggle('show');
+        const isShowing = this.chapterMenu.classList.toggle('show');
+        
+        // 如果選單被打開，則滾動到當前章節
+        if (isShowing) {
+            // 延遲執行，確保選單完全顯示後再滾動
+            setTimeout(() => {
+                this.scrollToCurrentChapter();
+            }, 50);
+        }
     }
 
     closeChapterMenu() {
@@ -309,9 +320,15 @@ class MangaReader {
             const chapterIndex = this.navigation.current_index;
             const totalChapters = this.navigation.total_chapters;
 
-            this.chapterInfoElement.textContent = `${mangaName} - ${chapterName} (${chapterIndex}/${totalChapters})`;
+            const displayText = `${mangaName} - ${chapterName} (${chapterIndex}/${totalChapters})`;
+            this.chapterInfoElement.textContent = displayText;
+            // 更新頁面標題
+            document.title = `${mangaName} - ${chapterName}`;
         } else {
-            this.chapterInfoElement.textContent = this.getChapterName();
+            const chapterName = this.getChapterName();
+            this.chapterInfoElement.textContent = chapterName;
+            // 更新頁面標題
+            document.title = chapterName;
         }
 
         this.pageInfoElement.textContent = `共 ${this.images.length} 頁`;
