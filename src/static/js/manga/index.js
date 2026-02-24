@@ -53,11 +53,12 @@ function bindEvents() {
         });
     });
 
-    // 只顯示收藏章節切換事件
-    const favoriteOnlyCheckbox = document.getElementById('favoriteOnlyCheckbox');
-    if (favoriteOnlyCheckbox) {
-        favoriteOnlyCheckbox.addEventListener('change', (e) => {
-            favoriteOnly = e.target.checked;
+    // 只顯示收藏章節切換事件（懸浮星星按鈕）
+    const favoriteOnlyBtn = document.getElementById('favoriteOnlyBtn');
+    if (favoriteOnlyBtn) {
+        favoriteOnlyBtn.addEventListener('click', () => {
+            favoriteOnly = !favoriteOnly;
+            updateFavoriteOnlyBtn();
             saveFavoriteOnlySetting(favoriteOnly);
             currentPage = 1;
             loadMangas();
@@ -132,7 +133,7 @@ function displayMangas(mangas) {
         let coverImageHtml;
         if (manga.cover_image) {
             const imgTag = `<img src="${IMAGE_PREFIX}${encodeURIComponent(manga.cover_image)}" alt="${escapeHtml(manga.name)}" onerror="this.parentElement.innerHTML='<div class=&quot;manga-cover-placeholder-with-title&quot;>📚</div>'">`;
-            
+
             if (manga.url_link) {
                 // 有連結：可點擊，開新分頁
                 coverImageHtml = `<a href="${escapeHtml(manga.url_link)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="manga-cover-link">${imgTag}</a>`;
@@ -329,15 +330,21 @@ function saveFavoriteOnlySetting(value) {
     }
 }
 
+// 更新懸浮星星按鈕狀態
+function updateFavoriteOnlyBtn() {
+    const btn = document.getElementById('favoriteOnlyBtn');
+    if (btn) {
+        btn.classList.toggle('active', favoriteOnly);
+        btn.textContent = favoriteOnly ? '★' : '☆';
+    }
+}
+
 // 載入只顯示收藏設定
 function loadFavoriteOnlySetting() {
     try {
         const saved = localStorage.getItem('manga_favorite_only');
         favoriteOnly = saved === 'true';
-        const checkbox = document.getElementById('favoriteOnlyCheckbox');
-        if (checkbox) {
-            checkbox.checked = favoriteOnly;
-        }
+        updateFavoriteOnlyBtn();
     } catch (error) {
         console.warn('無法載入設定:', error);
         favoriteOnly = false;
@@ -368,7 +375,7 @@ function escapeHtml(text) {
 function throttle(func, wait) {
     let timeout;
     let previous = 0;
-    return function() {
+    return function () {
         const now = Date.now();
         const remaining = wait - (now - previous);
         const context = this;
